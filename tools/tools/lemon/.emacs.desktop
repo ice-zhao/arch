@@ -1,0 +1,103 @@
+;; -*- mode: emacs-lisp; coding: emacs-mule; -*-
+;; --------------------------------------------------------------------------
+;; Desktop File for Emacs
+;; --------------------------------------------------------------------------
+;; Created Thu Dec  6 17:54:57 2018
+;; Desktop file format version 208
+;; Emacs version 25.1.50.2
+
+;; Global section:
+(setq desktop-saved-frameset [frameset 1 (23560 61937 122312 522000) (desktop . "208") "ice@ice" nil nil ((((minibuffer . t) (font-backend xft x) (font . "-unknown-Ubuntu Mono-normal-normal-normal-*-17-*-*-*-m-0-iso10646-1") (font-parameter) (border-width . 0) (internal-border-width . 0) (right-divider-width . 0) (bottom-divider-width . 0) (vertical-scroll-bars . right) (horizontal-scroll-bars) (foreground-color . "white smoke") (background-color . "gray20") (mouse-color . "black") (border-color . "black") (screen-gamma) (line-spacing) (left-fringe . 8) (right-fringe . 8) (scroll-bar-foreground . "dark turquoise") (scroll-bar-background . "gray20") (menu-bar-lines . 0) (tool-bar-lines . 0) (title) (wait-for-wm . t) (tool-bar-position . top) (icon-type . t) (auto-raise) (auto-lower) (cursor-type . box) (scroll-bar-width . 14) (scroll-bar-height . 0) (alpha) (fullscreen . fullboth) (display-type . color) (background-mode . dark) (cursor-color . "white") (sticky) (environment) (frameset--id . "56F8-F911-C7BF-371F") (frameset--mini t . t) (height . 37) (width . 148) (modeline . t) (unsplittable) (left . 0) (top . 0) (icon-name) (visibility . t) (display . ":0.0") (explicit-name)) ((min-height . 4) (min-width . 10) (min-height-ignore . 4) (min-width-ignore . 6) (min-height-safe . 1) (min-width-safe . 2) (min-pixel-height . 72) (min-pixel-width . 90) (min-pixel-height-ignore . 72) (min-pixel-width-ignore . 54) (min-pixel-height-safe . 18) (min-pixel-width-safe . 18)) leaf (pixel-width . 1366) (pixel-height . 664) (total-width . 151) (total-height . 37) (normal-height . 1.0) (normal-width . 1.0) (buffer "formula.c" (selected . t) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 2 t nil 0 t) (vscroll . 0) (dedicated) (point . 5374) (start . 4051))))])
+(setq desktop-missing-file-warning nil)
+(setq tags-file-name nil)
+(setq tags-table-list nil)
+(setq search-ring nil)
+(setq regexp-search-ring nil)
+(setq register-alist (list (list "zygospore-windows-time-machine" "Unprintable entity" (let ((mk (make-marker))) (add-hook 'desktop-delay-hook `(lambda nil (set-marker ,mk ,19 (get-buffer ,"main.c")))) mk))))
+(setq file-name-history '("~/sources/tools/lemon/formula.c" "~/sources/tools/lemon/formula.y" "~/sources/tools/lemon/lempar.c" "~/sources/tools/lemon/formula.h" "~/sources/tools/lemon/formula.out"))
+
+;; Buffer section -- buffers listed in same order as in buffer list:
+(desktop-create-buffer 208
+  "/home/ice/sources/tools/lemon/formula.c"
+  "formula.c"
+  'c-mode
+  '(abbrev-mode helm-mode helm-gtags-mode ggtags-mode volatile-highlights-mode ws-butler-mode undo-tree-mode yas-minor-mode smartparens-mode anzu-mode company-mode projectile-mode hs-minor-mode auto-complete-mode override-global-mode irony-mode)
+  5374
+  '(5374 nil)
+  nil
+  nil
+  '((show-trailing-whitespace . 1) (buffer-file-coding-system . undecided-unix))
+  '((mark-ring nil)))
+
+(desktop-create-buffer 208
+  "/home/ice/sources/tools/lemon/formula.y"
+  "formula.y"
+  'c-mode
+  '(abbrev-mode helm-mode helm-gtags-mode ggtags-mode volatile-highlights-mode ws-butler-mode undo-tree-mode yas-minor-mode smartparens-mode anzu-mode company-mode projectile-mode hs-minor-mode auto-complete-mode override-global-mode irony-mode)
+  205
+  '(205 nil)
+  nil
+  nil
+  '((show-trailing-whitespace . 1) (buffer-file-coding-system . undecided-unix))
+  '((mark-ring (205 205 205 205 205 205 153))))
+
+(desktop-create-buffer 208
+  "/home/ice/sources/tools/lemon/lempar.c"
+  "lempar.c"
+  'c-mode
+  '(abbrev-mode helm-mode helm-gtags-mode ggtags-mode volatile-highlights-mode ws-butler-mode undo-tree-mode yas-minor-mode smartparens-mode anzu-mode company-mode projectile-mode hs-minor-mode auto-complete-mode override-global-mode irony-mode)
+  1194
+  '(1194 nil)
+  nil
+  nil
+  '((show-trailing-whitespace . 1) (buffer-file-coding-system . utf-8-unix))
+  '((mark-ring (1194 1484 1484 36628 1))))
+
+(desktop-create-buffer 208
+  "/home/ice/sources/tools/lemon/formula.h"
+  "formula.h"
+  'c-mode
+  '(abbrev-mode helm-mode helm-gtags-mode ggtags-mode volatile-highlights-mode ws-butler-mode undo-tree-mode yas-minor-mode smartparens-mode anzu-mode company-mode projectile-mode hs-minor-mode auto-complete-mode override-global-mode irony-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((show-trailing-whitespace . 1) (buffer-file-coding-system . undecided-unix))
+  '((mark-ring (1 1))))
+
+(desktop-create-buffer 208
+  "/home/ice/sources/tools/lemon/main.c"
+  "main.c"
+  'c-mode
+  '(abbrev-mode helm-mode helm-gtags-mode ggtags-mode volatile-highlights-mode ws-butler-mode undo-tree-mode yas-minor-mode smartparens-mode anzu-mode company-mode projectile-mode hs-minor-mode auto-complete-mode override-global-mode irony-mode)
+  84
+  '(84 nil)
+  nil
+  nil
+  '((show-trailing-whitespace . 1) (buffer-file-coding-system . utf-8-unix))
+  '((mark-ring (84 19 19 19))))
+
+(desktop-create-buffer 208
+  "/home/ice/sources/tools/lemon/Makefile"
+  "Makefile"
+  'makefile-gmake-mode
+  '(helm-mode volatile-highlights-mode ws-butler-mode undo-tree-mode yas-minor-mode smartparens-mode anzu-mode company-mode projectile-mode override-global-mode)
+  17
+  '(17 nil)
+  nil
+  nil
+  '((show-trailing-whitespace . 1) (indent-tabs-mode . t) (buffer-file-coding-system . utf-8-unix))
+  '((mark-ring (17))))
+
+(desktop-create-buffer 208
+  "/home/ice/sources/tools/lemon/lemon.c"
+  "lemon.c"
+  'c-mode
+  '(abbrev-mode helm-mode helm-gtags-mode ggtags-mode volatile-highlights-mode ws-butler-mode undo-tree-mode yas-minor-mode smartparens-mode anzu-mode company-mode projectile-mode hs-minor-mode auto-complete-mode override-global-mode irony-mode)
+  1435
+  '(1435 nil)
+  nil
+  nil
+  '((show-trailing-whitespace . 1) (buffer-file-coding-system . utf-8-unix))
+  '((mark-ring (1435 173093 173093 1))))
+
