@@ -1,1 +1,7 @@
 /target/*
+/target/
+/target/classes/*
+/target/test-classes/*
+.classpath
+.settings/*
+
