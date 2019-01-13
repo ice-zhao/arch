@@ -4,4 +4,5 @@ target/classes/
 target/test-classes/*
 .classpath
 .settings/*
+.settings/org.eclipse.jdt.core.prefs
 
