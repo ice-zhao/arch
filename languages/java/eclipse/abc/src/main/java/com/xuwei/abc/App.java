@@ -57,7 +57,7 @@ public class App
     	news1.setTitle("new device");
     	news1.setDevice(dev);
     	
-//    	sess.save(dev);
+    	sess.save(dev);
     	sess.save(news);
     	sess.save(news1);
     	tx.commit();
