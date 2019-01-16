@@ -1,4 +1,4 @@
-package com.xuwei.abc.devices;
+package com.xunwei.collectdata.devices;
 import javax.persistence.*;
 
 //@Entity

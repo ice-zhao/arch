@@ -1,8 +1,10 @@
-package com.xuwei.abc;
+package com.xunwei.collectdata;
 import org.hibernate.cfg.Configuration;
 
-import com.xuwei.abc.devices.Device;
-import com.xuwei.abc.devices.News;
+import com.xunwei.collectdata.devices.Device;
+import com.xunwei.collectdata.devices.News;
+
+import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -16,7 +18,7 @@ public class App
 	static {
 		try {
 			concreteSessionFactory = new Configuration()
-					.configure("com/xuwei/abc/hibernate.cfg.xml")
+					.configure("com/xunwei/collectdata/hibernate.cfg.xml")
 					.buildSessionFactory();
 		} catch (Throwable ex) {
 			throw new ExceptionInInitializerError(ex);
@@ -45,6 +47,23 @@ public class App
     	Session sess = getSession();
     	Transaction tx = sess.beginTransaction();
     	
+/*    	//Load all records.
+    	@SuppressWarnings("unchecked")
+		List<News> newsEntity = (List<News>) sess.createQuery("from News").list();
+    	for(News item : newsEntity) {
+    		System.out.println(item.getTitle());
+    	}*/
+    	
+    	//load one record bases on identifier
+//    	News oneNews = sess.load(News.class, new Integer(1));
+//    	System.out.println(oneNews.getTitle());
+//    	Device oneDev = sess.load(Device.class, new Integer(9));
+//    	System.out.println(oneDev.getDeviceName());
+//    	News ups = new News();
+//    	ups.setTitle("this is a UPS");
+//    	ups.setDevice(oneDev);
+//    	sess.save(ups);
+
     	Device dev = new Device();
     	dev.setDeviceId(8);
     	dev.setDeviceName("Ameter");
@@ -64,6 +83,6 @@ public class App
     	
     	closeSession(sess);
     	closeSessionFactory();
-        System.out.println( "hi" );
+        System.out.println( "good" );
     }
 }

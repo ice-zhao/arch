@@ -1,4 +1,4 @@
-package com.xuwei.abc.devices;
+package com.xunwei.collectdata.devices;
 
 public class Device implements IDevice {
 	private Integer deviceId;
