@@ -43,46 +43,51 @@ public class App
 	
     public static void main( String[] args )
     {
-    	//get hibernate session
-    	Session sess = getSession();
-    	Transaction tx = sess.beginTransaction();
-    	
-/*    	//Load all records.
-    	@SuppressWarnings("unchecked")
-		List<News> newsEntity = (List<News>) sess.createQuery("from News").list();
-    	for(News item : newsEntity) {
-    		System.out.println(item.getTitle());
-    	}*/
-    	
-    	//load one record bases on identifier
-//    	News oneNews = sess.load(News.class, new Integer(1));
-//    	System.out.println(oneNews.getTitle());
-//    	Device oneDev = sess.load(Device.class, new Integer(9));
-//    	System.out.println(oneDev.getDeviceName());
-//    	News ups = new News();
-//    	ups.setTitle("this is a UPS");
-//    	ups.setDevice(oneDev);
-//    	sess.save(ups);
 
-    	Device dev = new Device();
-    	dev.setDeviceId(8);
-    	dev.setDeviceName("Ameter");
-    	
-    	News news = new News();
-    	news.setTitle("try hibernate3");
-    	news.setDevice(dev);
-    	
-    	News news1 = new News();
-    	news1.setTitle("new device");
-    	news1.setDevice(dev);
-    	
-    	sess.save(dev);
-    	sess.save(news);
-    	sess.save(news1);
-    	tx.commit();
-    	
-    	closeSession(sess);
-    	closeSessionFactory();
         System.out.println( "good" );
     }
 }
+
+
+//hibernate sample code
+//get hibernate session
+//Session sess = getSession();
+//Transaction tx = sess.beginTransaction();
+
+/*    	//Load all records.
+@SuppressWarnings("unchecked")
+List<News> newsEntity = (List<News>) sess.createQuery("from News").list();
+for(News item : newsEntity) {
+	System.out.println(item.getTitle());
+}*/
+
+//load one record bases on identifier
+//News oneNews = sess.load(News.class, new Integer(1));
+//System.out.println(oneNews.getTitle());
+//Device oneDev = sess.load(Device.class, new Integer(9));
+//System.out.println(oneDev.getDeviceName());
+//News ups = new News();
+//ups.setTitle("this is a UPS");
+//ups.setDevice(oneDev);
+//sess.save(ups);
+
+/*    	Device dev = new Device();
+dev.setDeviceId(8);
+dev.setDeviceName("Ameter");
+
+News news = new News();
+news.setTitle("try hibernate3");
+news.setDevice(dev);
+
+News news1 = new News();
+news1.setTitle("new device");
+news1.setDevice(dev);
+
+sess.save(dev);
+sess.save(news);
+sess.save(news1);*/
+
+//tx.commit();
+//
+//closeSession(sess);
+//closeSessionFactory();
