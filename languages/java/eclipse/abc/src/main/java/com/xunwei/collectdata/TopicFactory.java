@@ -1,6 +1,7 @@
 package com.xunwei.collectdata;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import com.xunwei.services.MqttAsyncCallback;
 
@@ -72,8 +73,124 @@ public class TopicFactory {
 		}
 		
 	}
+	
 	public void startAllTopics() {
+		try {
+			talkOnRegisterHost();
+		} catch(MqttException me) {
+			// Display full details of any exception that occurs
+			System.out.println("reason "+me.getReasonCode());
+			System.out.println("msg "+me.getMessage());
+			System.out.println("loc "+me.getLocalizedMessage());
+			System.out.println("cause "+me.getCause());
+			System.out.println("excep "+me);
+			me.printStackTrace();
+		} catch (Throwable th) {
+			System.out.println("Throwable caught "+th);
+			th.printStackTrace();
+		}
+	}
+	
+	private void talkOnRegisterHost() throws Throwable {
+		subTopic = "/control/register/dcms";
+		pubTopic = "/control/register/dcms/ack";
+		action 	= "subscribe";
+		broker = "LocalHost";
+		url = protocol + broker + ":" + port;
 		
+		// Create an instance of the publish client wrapper
+		action 	= "publish";
+		clientId = pubTopic + " " + action;
+	    // Create an instance of the publish client wrapper
+		MqttAsyncCallback regHostPubAckClient = 
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
+		regHostPubAckClient.connect();
+//		topic = pubTopic;
+//		regHostPubAckClient.publish(topic,qos,message.getBytes());
+		
+		action 	= "subscribe";
+		clientId = subTopic + " " + action;
+	    // Create an instance of the subscribe client wrapper
+		MqttAsyncCallback regHostSubClient = 
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
+			public void messageArrived(String topic, MqttMessage message) throws Exception {
+				super.messageArrived(topic, message);
+				//TODO:parse received JSON data.
+				String jsonData = "process data successfully.";
+				
+				try {
+//					System.out.println(pubAckTopic);
+					
+					regHostPubAckClient.publish(pubTopic,qos,jsonData.getBytes());
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		regHostSubClient.connect();
+		topic = subTopic;
+		regHostSubClient.subscribe(topic,qos);
+		
+		
+		//only for test ack topic
+		action 	= "subscribe";
+		String subAckTopic = "/control/register/dcms/ack";
+		clientId = subAckTopic + " " + action;
+		MqttAsyncCallback regHostSubAckClient = 
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
+		regHostSubAckClient.connect();
+		regHostSubAckClient.subscribe(subAckTopic, qos);
+		
+		//Only for test register dcms topic.
+		action 	= "publish";
+		String pubHostTopic = "/control/register/dcms";
+		clientId = pubHostTopic + " " + action;
+	    // Create an instance of the publish client wrapper
+		MqttAsyncCallback regHostPubClient = 
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
+		regHostPubClient.connect();
+		topic = pubHostTopic;
+		regHostPubClient.publish(topic,qos,message.getBytes());
+	}
+	
+	public void testLocalTopic() {
+		// With a valid set of arguments, the real work of
+		// driving the client API can begin
+		try {
+		    clientId = "SampleJavaV3_"+action;
+		    broker = "LocalHost";
+		    url = protocol + broker + ":" + port;
+		    
+			// Create an instance of the Sample client wrapper
+			MqttAsyncCallback sampleClient = 
+					new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
+
+			sampleClient.connect();
+			// Perform the specified action
+			if (action.equals("publish")) {
+				topic = pubTopic;
+				int i = 0;
+				for(i=0; i<10; i++)
+					sampleClient.publish(topic,qos,message.getBytes());
+			} else if (action.equals("subscribe")) {
+				topic = subTopic;
+				sampleClient.subscribe(topic,qos);
+			}
+		} catch(MqttException me) {
+			// Display full details of any exception that occurs
+			System.out.println("reason "+me.getReasonCode());
+			System.out.println("msg "+me.getMessage());
+			System.out.println("loc "+me.getLocalizedMessage());
+			System.out.println("cause "+me.getCause());
+			System.out.println("excep "+me);
+			me.printStackTrace();
+		} catch (Throwable th) {
+			System.out.println("Throwable caught "+th);
+			th.printStackTrace();
+		}
+        System.out.println( "good" );
 	}
 	
 	public void testRemoteTopic() {

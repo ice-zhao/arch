@@ -1,5 +1,5 @@
 package com.xunwei.collectdata.devices;
-import javax.persistence.*;
+//import javax.persistence.*;
 
 //@Entity
 //@Table(name="news_tbl")
