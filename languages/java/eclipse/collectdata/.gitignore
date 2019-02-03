@@ -1,5 +1,5 @@
 *.class
 collectdata.iml
 .idea/*
-target/*
+target/*/*
 .idea/workspace.xml
