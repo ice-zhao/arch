@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping">
+<hibernate-mapping package="com.xunwei.collectdata.devices">
+    <class name="Host" table="d_dcms">
+        <id name="hostID" type="integer"></id>
+        <property name="areaID" type="integer"></property>
+        <property name="buildingID" type="integer"></property>
+        <property name="name" type="string"></property>
+        <property name="serial" type="string"></property>
+    </class>
+</hibernate-mapping>

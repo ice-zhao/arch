@@ -4,6 +4,14 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import com.xunwei.services.MqttAsyncCallback;
+import com.xunwei.collectdata.devices.Host;
+import com.xunwei.collectdata.App;
+
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.type.*;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 class TopicFactory {
 	// Default settings:
@@ -102,6 +110,17 @@ class TopicFactory {
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
 				super.messageArrived(topic, message);
 				//TODO:parse received JSON data.
+				Session sess = App.getSession();
+				Transaction tx = sess.beginTransaction();
+
+				String receivedData = new String(message.getPayload());
+				ObjectMapper mapper = new ObjectMapper();
+				Host host = mapper.readValue(receivedData, Host.class);
+				System.out.println("----------"+ host.getName());
+				sess.save(host);
+				tx.commit();
+				App.closeSession(sess);
+
 				String jsonData = "process data successfully.";
 				
 				try {
@@ -114,8 +133,7 @@ class TopicFactory {
 		};
 		
 		regHostSubClient.connect();
-		topic = subTopic;
-		regHostSubClient.subscribe(topic,qos);
+		regHostSubClient.subscribe(subTopic,qos);
 		
 		
 		//only for test ack topic
@@ -135,8 +153,14 @@ class TopicFactory {
 		MqttAsyncCallback regHostPubClient = 
 				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
 		regHostPubClient.connect();
-		topic = pubHostTopic;
-		regHostPubClient.publish(topic,qos,message.getBytes());
+		String dcmsJson = "{\n" +
+				"\"hostID\" : 8,\n" +
+				"\"areaID\" : 9,\n" +
+				"\"buildingID\" : 10,\n" +
+				"\"name\" : \"sample park\",\n" +
+				"\"serial\" : \"user defined\"\n" +
+				"}";
+		regHostPubClient.publish(pubHostTopic,qos,dcmsJson.getBytes());
 	}
 	
 	/*public void testLocalTopic() {

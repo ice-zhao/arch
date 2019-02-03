@@ -37,6 +37,7 @@
       <!-- List of XML mapping files -->
       <mapping resource = "devices/Device.hbm.xml"/>
       <mapping resource = "devices/News.hbm.xml"/>
+      <mapping resource = "devices/Host.hbm.xml"/>
    </session-factory>
 <!--
 	<session-factory name="foo">
