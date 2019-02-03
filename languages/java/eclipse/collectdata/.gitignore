@@ -1,1 +1,4 @@
 *.class
+collectdata.iml
+.idea/*
+target/*
