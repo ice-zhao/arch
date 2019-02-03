@@ -9,7 +9,7 @@
     </option>
   </component>
   <component name="ProjectResources">
-    <resource url="http://www.hibernate.org/dtd/hibernate-mapping" location="$PROJECT_DIR$/src/main/resources/hibernate-mapping-3.0.dtd" />
+    <resource url="http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" location="$USER_HOME$/.IntelliJIdea2018.3/system/extResources/f02c51ff_hibernate-mapping-3.0.dtd" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />

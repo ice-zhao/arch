@@ -1,4 +1,6 @@
 package com.xunwei.collectdata;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 //import com.xunwei.collectdata.devices.Device;
@@ -27,11 +29,11 @@ public class App
 		}
 	}
 
-	public static Session getSession() throws HibernateException {
+	private static Session getSession() throws HibernateException {
 		return concreteSessionFactory.openSession();
 	}
 	
-    public static void closeSession(Session session){
+    private static void closeSession(Session session){
         if(session != null){
             session.close();
         }
@@ -50,6 +52,20 @@ public class App
 //    	topicFactory.testLocalTopic();
     	topicFactory.startAllTopics();
     }
+
+    static void bePersistedObject(Object object) throws Throwable {
+		Session sess = getSession();
+		Transaction tx = sess.beginTransaction();
+		sess.save(object);
+		try {
+			tx.commit();
+		} catch (Exception ex)
+		{
+			throw ex;
+		} finally {
+			closeSession(sess);
+		}
+	}
 }
 
 

@@ -10,7 +10,7 @@
 
 <hibernate-configuration>
    <session-factory>
-      <property name = "hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+      <property name = "hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>
       <property name = "hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
       <!-- Assume xunwei is the database name -->
       <property name = "hibernate.connection.url">jdbc:mysql://localhost:3306/xunwei</property>
@@ -33,7 +33,7 @@
 
 	  <!-- list all persistent class   -->
 <!-- 	  <mapping class="com.xuwei.abc.devices.News"/> -->
-           
+
       <!-- List of XML mapping files -->
       <mapping resource = "devices/Device.hbm.xml"/>
       <mapping resource = "devices/News.hbm.xml"/>

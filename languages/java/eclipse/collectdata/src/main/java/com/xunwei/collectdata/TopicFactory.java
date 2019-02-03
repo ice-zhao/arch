@@ -1,24 +1,16 @@
 package com.xunwei.collectdata;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import com.xunwei.services.MqttAsyncCallback;
 import com.xunwei.collectdata.devices.Host;
-import com.xunwei.collectdata.App;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.type.*;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import com.xunwei.services.MqttAsyncCallback;
 
 class TopicFactory {
 	// Default settings:
 	private boolean quietMode 	= false;
 	private String action 		= "publish";
-	private String topic 		= "";
-	private String message 		= "Message from async callback Paho MQTTv3 Java client sample";
 	private int qos 			= 2;
 	private String broker 		= "m2m.eclipse.org";
 	private int port 			= 1883;
@@ -51,8 +43,12 @@ class TopicFactory {
 				
 				switch(arg) {
 					case 'a': action = args[++i];                 break;
-					case 't': topic = args[++i];                  break;
-					case 'm': message = args[++i];                break;
+					case 't':
+						String topic = args[++i];
+						break;
+					case 'm':
+						String message = args[++i];
+						break;
 					case 's': qos = Integer.parseInt(args[++i]);  break;
 					case 'b': broker = args[++i];                 break;
 					case 'p': port = Integer.parseInt(args[++i]); break;
@@ -109,17 +105,19 @@ class TopicFactory {
 				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
 				super.messageArrived(topic, message);
-				//TODO:parse received JSON data.
-				Session sess = App.getSession();
-				Transaction tx = sess.beginTransaction();
 
+				//parse received JSON data.
 				String receivedData = new String(message.getPayload());
 				ObjectMapper mapper = new ObjectMapper();
 				Host host = mapper.readValue(receivedData, Host.class);
 				System.out.println("----------"+ host.getName());
-				sess.save(host);
-				tx.commit();
-				App.closeSession(sess);
+
+				//To persist data
+				try {
+					App.bePersistedObject(host);
+				} catch (Throwable throwable) {
+					throwable.printStackTrace();
+				}
 
 				String jsonData = "process data successfully.";
 				
