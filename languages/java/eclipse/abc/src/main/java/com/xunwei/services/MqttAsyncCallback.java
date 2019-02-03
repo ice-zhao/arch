@@ -1,6 +1,5 @@
 package com.xunwei.services;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
@@ -15,17 +14,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 
-public class MqttAsyncCallback implements MqttCallback {
+public class MqttAsyncCallback implements MqttCallback,Runnable {
 	private int state = BEGIN;
-	private String topic 		= "";
-	private int qos 			= 2;
-	String broker 		= "m2m.eclipse.org";
-	int port 			= 1883;
-	String clientId 	= null;
-	String subTopic		= "Sample/#";
-	String pubTopic 	= "Sample/Java/v3";
 	private boolean cleanSession = true;			// Non durable subscriptions
-	boolean ssl = false;
 	private MqttAsyncClient 	client;
 	private String 				brokerUrl;
 	private boolean 			quietMode = true;
@@ -102,8 +93,7 @@ public class MqttAsyncCallback implements MqttCallback {
     private Subscriber sub = null;
     
     public void connect() throws Throwable {
-    	// Use a state machine to decide which step to do next. State change occurs
-    	// when a notification is received that an MQTT action has completed
+    	// State change occurs when a notification is received that an MQTT action has completed
 		if(null == con)
 			con = new MqttConnector();
 		con.doConnect();
@@ -159,50 +149,13 @@ public class MqttAsyncCallback implements MqttCallback {
      * @throws MqttException
      */
     public void subscribe(String topicName, int qos) throws Throwable {
-    	// Use a state machine to decide which step to do next. State change occurs
-    	// when a notification is received that an MQTT action has completed
-//    	while (state != FINISH) {
-//    		switch (state) {
-//    			case BEGIN:
-//    				// Connect using a non-blocking connect
-//    				if(null == con)
-//    					con = new MqttConnector();
-//    		    	con.doConnect();
-//    				break;
-//    			case CONNECTED:
-    				// Subscribe using a non-blocking subscribe
-    				if(null == sub)
-    					sub = new Subscriber();
-    				sub.doSubscribe(topicName, qos);
-//    				break;
-//    			case SUBSCRIBED:
-//    		    	// Block until Enter is pressed allowing messages to arrive
-//    		    	log("Press <Enter> to exit");
-//    				try {
-//    					System.in.read();
-//    				} catch (IOException e) {
-//    					//If we can't read we'll just exit
-//    				}
-//    				state = DISCONNECT;
-//    				donext = true;
-//    				break;
-//    			case DISCONNECT:
-//    				Disconnector disc = new Disconnector();
-//    				disc.doDisconnect();
-//    				break;
-//    			case ERROR:
-//    				throw ex;
-//    			case DISCONNECTED:
-//    				state = FINISH;
-//    				donext = true;
-//    				break;
-//    		}
-
-//    		if (state != FINISH && state != DISCONNECT) {
-    			waitForStateChange(10000);
-    		}
-//    	}
-//    }
+    	//State change occurs when a notification is received that an MQTT action has completed
+		if(null == sub)
+			sub = new Subscriber();
+		sub.doSubscribe(topicName, qos);
+		
+		waitForStateChange(10000);
+    }
     
 	public void connectionLost(Throwable cause) {
 		// Called when the connection to the server has been lost.
@@ -210,7 +163,6 @@ public class MqttAsyncCallback implements MqttCallback {
 		// logic at this point. This sample simply exits.
 		log("Connection to " + brokerUrl + " lost!" + cause);
 		System.exit(1);
-		
 	}
 	
 	public void deliveryComplete(IMqttDeliveryToken token) {
@@ -316,7 +268,6 @@ public class MqttAsyncCallback implements MqttCallback {
 	    	log("Publishing at: "+time+ " to topic \""+topicName+"\" qos "+qos);
 
 	    	// Setup a listener object to be notified when the publish completes.
-	    	//
 	    	if(null == pubListener) {
 		    	pubListener = new IMqttActionListener() {
 					public void onSuccess(IMqttToken asyncActionToken) {
@@ -459,22 +410,6 @@ public class MqttAsyncCallback implements MqttCallback {
 		this.state = state;
 	}
 
-	public String getTopic() {
-		return topic;
-	}
-
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
-
-	public int getQos() {
-		return qos;
-	}
-
-	public void setQos(int qos) {
-		this.qos = qos;
-	}
-
 	public boolean isQuietMode() {
 		return quietMode;
 	}
@@ -489,5 +424,11 @@ public class MqttAsyncCallback implements MqttCallback {
 
 	public void setCleanSession(boolean cleanSession) {
 		this.cleanSession = cleanSession;
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
 	}
 }
