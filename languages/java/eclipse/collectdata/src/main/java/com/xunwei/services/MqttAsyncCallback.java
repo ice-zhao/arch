@@ -32,7 +32,7 @@ public class MqttAsyncCallback implements MqttCallback {
 	private MqttConnectOptions 	conOpt;
 	private boolean 			clean;
 	Throwable 			ex = null;
-	private Object 				waiter = new Object();
+	private final Object 	waiter = new Object();
 	boolean 			donext = false;
 	private String password;
 	private String userName;

@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import com.xunwei.services.MqttAsyncCallback;
 
-public class TopicFactory {
+class TopicFactory {
 	// Default settings:
 	private boolean quietMode 	= false;
 	private String action 		= "publish";
@@ -15,17 +15,13 @@ public class TopicFactory {
 	private String broker 		= "m2m.eclipse.org";
 	private int port 			= 1883;
 	private String clientId 	= null;
-	private String subTopic		= "Sample/#";
 	private String pubTopic 	= "Sample/Java/v3";
 	private boolean cleanSession = true;			// Non durable subscriptions
 	private String password = null;
 	private String userName = null;
 //	private boolean ssl = false;
-	
-	private String protocol = "tcp://";
-	private String url = protocol + broker + ":" + port;
-    
-	public TopicFactory(String[] args) {
+
+	TopicFactory(String[] args) {
 		// Parse the arguments -
 		for (int i=0; i<args.length; i++) {
 			// Check this is a valid argument
@@ -74,7 +70,7 @@ public class TopicFactory {
 		
 	}
 	
-	public void startAllTopics() {
+	void startAllTopics() {
 		try {
 			talkOnRegisterHost();
 		} catch(MqttException me) {
@@ -92,11 +88,12 @@ public class TopicFactory {
 	}
 	
 	private void talkOnRegisterHost() throws Throwable {
-		subTopic = "/control/register/dcms";
+		String subTopic = "/control/register/dcms";
 		pubTopic = "/control/register/dcms/ack";
 		action 	= "subscribe";
 		broker = "LocalHost";
-		url = protocol + broker + ":" + port;
+		String protocol = "tcp://";
+		String url = protocol + broker + ":" + port;
 
 		clientId = subTopic + " " + action;
 	    // Create an instance of the subscribe client wrapper
@@ -108,8 +105,6 @@ public class TopicFactory {
 				String jsonData = "process data successfully.";
 				
 				try {
-//					System.out.println(pubAckTopic);
-					
 					super.publish(pubTopic,qos,jsonData.getBytes());
 				} catch (Throwable e) {
 					// TODO Auto-generated catch block
