@@ -1,6 +1,5 @@
 package com.xunwei.collectdata;
 
-import com.sun.istack.NotNull;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
