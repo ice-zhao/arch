@@ -47,10 +47,10 @@ public class App
 	
     public static void main( String[] args )
     {
-    	TopicFactory topicFactory = new TopicFactory(args);
+//    	TopicFactory topicFactory = new TopicFactory(args);
 //    	topicFactory.testRemoteTopic();
 //    	topicFactory.testLocalTopic();
-    	topicFactory.startAllTopics();
+//    	topicFactory.startAllTopics();
     }
 
     static void bePersistedObject(Object object) throws Throwable {
