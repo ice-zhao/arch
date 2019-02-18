@@ -1,5 +1,6 @@
 package com.xunwei.services;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
@@ -16,14 +17,22 @@ import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 public class MqttAsyncCallback implements MqttCallback,Runnable {
 	private int state = BEGIN;
+	private String topic 		= "";
+	private int qos 			= 2;
+	String broker 		= "m2m.eclipse.org";
+	int port 			= 1883;
+	String clientId 	= null;
+	private String subTopic		= "Sample/#";
+	private String pubTopic 	= "Sample/Java/v3";
 	private boolean cleanSession = true;			// Non durable subscriptions
+	boolean ssl = false;
 	private MqttAsyncClient 	client;
 	private String 				brokerUrl;
 	private boolean 			quietMode = true;
 	private MqttConnectOptions 	conOpt;
 	private boolean 			clean;
 	Throwable 			ex = null;
-	private Object 				waiter = new Object();
+	private final Object 	waiter = new Object();
 	boolean 			donext = false;
 	private String password;
 	private String userName;
@@ -93,7 +102,8 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
     private Subscriber sub = null;
     
     public void connect() throws Throwable {
-    	// State change occurs when a notification is received that an MQTT action has completed
+    	// Use a state machine to decide which step to do next. State change occurs
+    	// when a notification is received that an MQTT action has completed
 		if(null == con)
 			con = new MqttConnector();
 		con.doConnect();
@@ -194,6 +204,27 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
                            "  QoS:\t" + message.getQos());
 		
 	}
+
+	public void run() {
+
+	}
+
+	public String getPubTopic() {
+		return pubTopic;
+	}
+
+	public void setPubTopic(String pubTopic) {
+		this.pubTopic = pubTopic;
+	}
+
+	public String getSubTopic() {
+		return subTopic;
+	}
+
+	public void setSubTopic(String subTopic) {
+		this.subTopic = subTopic;
+	}
+
 	/**
 	 * Connect in a non-blocking way and then sit back and wait to be
 	 * notified that the action has completed.
@@ -410,6 +441,22 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 		this.state = state;
 	}
 
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public int getQos() {
+		return qos;
+	}
+
+	public void setQos(int qos) {
+		this.qos = qos;
+	}
+
 	public boolean isQuietMode() {
 		return quietMode;
 	}
@@ -424,11 +471,5 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 
 	public void setCleanSession(boolean cleanSession) {
 		this.cleanSession = cleanSession;
-	}
-
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
 	}
 }

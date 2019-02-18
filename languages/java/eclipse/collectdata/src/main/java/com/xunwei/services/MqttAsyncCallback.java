@@ -159,50 +159,13 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
      * @throws MqttException
      */
     public void subscribe(String topicName, int qos) throws Throwable {
-    	// Use a state machine to decide which step to do next. State change occurs
-    	// when a notification is received that an MQTT action has completed
-//    	while (state != FINISH) {
-//    		switch (state) {
-//    			case BEGIN:
-//    				// Connect using a non-blocking connect
-//    				if(null == con)
-//    					con = new MqttConnector();
-//    		    	con.doConnect();
-//    				break;
-//    			case CONNECTED:
-    				// Subscribe using a non-blocking subscribe
-    				if(null == sub)
-    					sub = new Subscriber();
-    				sub.doSubscribe(topicName, qos);
-//    				break;
-//    			case SUBSCRIBED:
-//    		    	// Block until Enter is pressed allowing messages to arrive
-//    		    	log("Press <Enter> to exit");
-//    				try {
-//    					System.in.read();
-//    				} catch (IOException e) {
-//    					//If we can't read we'll just exit
-//    				}
-//    				state = DISCONNECT;
-//    				donext = true;
-//    				break;
-//    			case DISCONNECT:
-//    				Disconnector disc = new Disconnector();
-//    				disc.doDisconnect();
-//    				break;
-//    			case ERROR:
-//    				throw ex;
-//    			case DISCONNECTED:
-//    				state = FINISH;
-//    				donext = true;
-//    				break;
-//    		}
-
-//    		if (state != FINISH && state != DISCONNECT) {
-    			waitForStateChange(10000);
-    		}
-//    	}
-//    }
+    	//State change occurs when a notification is received that an MQTT action has completed
+		if(null == sub)
+			sub = new Subscriber();
+		sub.doSubscribe(topicName, qos);
+		
+		waitForStateChange(10000);
+    }
     
 	public void connectionLost(Throwable cause) {
 		// Called when the connection to the server has been lost.
@@ -210,7 +173,6 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 		// logic at this point. This sample simply exits.
 		log("Connection to " + brokerUrl + " lost!" + cause);
 		System.exit(1);
-		
 	}
 	
 	public void deliveryComplete(IMqttDeliveryToken token) {
@@ -337,7 +299,6 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 	    	log("Publishing at: "+time+ " to topic \""+topicName+"\" qos "+qos);
 
 	    	// Setup a listener object to be notified when the publish completes.
-	    	//
 	    	if(null == pubListener) {
 		    	pubListener = new IMqttActionListener() {
 					public void onSuccess(IMqttToken asyncActionToken) {
