@@ -239,7 +239,7 @@ class TopicFactory {
 
 //						System.out.println(value.toString());
 						RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
-						RBucket rBucket = redissonClient.getBucket(key.asText());
+						RBucket<String> rBucket = redissonClient.getBucket(key.asText());
 						rBucket.set(value.toString());
 						System.out.println(rBucket.get());
 
