@@ -1,27 +1,40 @@
 package com.xunwei.collectdata;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import com.xunwei.collectdata.devices.Host;
 import com.xunwei.services.MqttAsyncCallback;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RBucket;
+import org.redisson.api.RKeys;
+import org.redisson.api.RedissonClient;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 class TopicFactory {
 	// Default settings:
 	private boolean quietMode 	= false;
 	private String action 		= "publish";
 	private int qos 			= 2;
-	private String broker 		= "m2m.eclipse.org";
+	private String broker 		= "LocalHost";//"m2m.eclipse.org";
 	private int port 			= 1883;
 	private String clientId 	= null;
 	private String pubTopic 	= "Sample/Java/v3";
 	private boolean cleanSession = true;			// Non durable subscriptions
 	private String password = null;
 	private String userName = null;
+	private static TopicFactory topicFactory = null;
+	private boolean isStartAll = false;
+	private String protocol = "tcp://";
+	private String url = protocol + broker + ":" + port;
 //	private boolean ssl = false;
 
-	TopicFactory(String[] args) {
+	private TopicFactory(String[] args) {
 		// Parse the arguments -
 		for (int i=0; i<args.length; i++) {
 			// Check this is a valid argument
@@ -73,10 +86,20 @@ class TopicFactory {
 		}
 		
 	}
-	
+
+	static TopicFactory getInstance(String[] args) {
+		if(topicFactory == null)
+			topicFactory = new TopicFactory(args);
+		return topicFactory;
+	}
+
 	void startAllTopics() {
+		if(isStartAll) return;
+
 		try {
-			talkOnRegisterHost();
+//			talkOnRegisterHost();
+			talkOnDeviceDataRead();
+			isStartAll = true;
 		} catch(MqttException me) {
 			// Display full details of any exception that occurs
 			System.out.println("reason "+me.getReasonCode());
@@ -85,9 +108,11 @@ class TopicFactory {
 			System.out.println("cause "+me.getCause());
 			System.out.println("excep "+me);
 			me.printStackTrace();
+			System.exit(-1);
 		} catch (Throwable th) {
 			System.out.println("Throwable caught "+th);
 			th.printStackTrace();
+			System.exit(-1);
 		}
 	}
 	
@@ -95,9 +120,6 @@ class TopicFactory {
 		String subTopic = "/control/register/dcms";
 		pubTopic = "/control/register/dcms/ack";
 		action 	= "subscribe";
-		broker = "LocalHost";
-		String protocol = "tcp://";
-		String url = protocol + broker + ":" + port;
 
 		clientId = subTopic + " " + action;
 	    // Create an instance of the subscribe client wrapper
@@ -113,14 +135,22 @@ class TopicFactory {
 				System.out.println("----------"+ host.getName());
 
 				//To persist data
+				boolean result = true;
 				try {
 					App.bePersistedObject(host);
 				} catch (Throwable throwable) {
 					throwable.printStackTrace();
+					result = false;
 				}
 
-				String jsonData = "process data successfully.";
-				
+				String jsonData = "{\n" +
+								"\"ErrNumber\":0,\n" +
+								"\"Description\":\"process data successfully.\"\n" +
+								"}";
+				if(!result) jsonData = "{\n" +
+								"\"ErrNumber\":-1,\n" +
+								"\"Description\":\"process data failure.\"\n" +
+								"}";
 				try {
 					super.publish(pubTopic,qos,jsonData.getBytes());
 				} catch (Throwable e) {
@@ -159,6 +189,92 @@ class TopicFactory {
 				"\"serial\" : \"user defined\"\n" +
 				"}";
 		regHostPubClient.publish(pubHostTopic,qos,dcmsJson.getBytes());
+	}
+
+	private void talkOnDeviceDataRead() throws Throwable {
+		String pubTopic = "/control/device/data/read";
+		action 	= "publish";
+
+		// Create an instance of the publish client wrapper
+		clientId = pubTopic + " " + action;
+		MqttAsyncCallback deviceDataReadPubClient =
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
+					//get redisson blockingQueue
+					RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
+					RBlockingQueue<String> queue = redissonClient.getBlockingQueue("webRequestQueue");
+
+					public void run() {
+						String jsonData;
+						try {
+							jsonData = queue.poll(0, TimeUnit.DAYS);		//infinitely wait
+							this.publish(this.getPubTopic(),qos,jsonData.getBytes());
+						} catch (Throwable throwable) {
+							throwable.printStackTrace();
+						}
+					}
+				};
+		deviceDataReadPubClient.setPubTopic(pubTopic);
+		deviceDataReadPubClient.connect();
+
+		Thread t = new Thread(deviceDataReadPubClient);
+
+		t.start();
+
+		//subscribe topic /devices/reply/data to store data in redis
+		String subTopic = "/devices/reply/data";
+		action 	= "subscribe";
+
+		//create subscribe client
+		clientId = subTopic + " " + action;
+		MqttAsyncCallback deviceDataReadSubClient =
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
+					public void messageArrived(String topic, MqttMessage message) throws Exception {
+//						super.messageArrived(topic, message);
+						System.out.println("----------------");
+						//store JSON data in redis
+						ObjectMapper objectMapper = new ObjectMapper();
+						JsonNode rootNode = objectMapper.readTree(message.getPayload());
+						JsonNode key = rootNode.path("key");
+						JsonNode value = rootNode.path("value");
+
+//						System.out.println(value.toString());
+						RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
+						RBucket rBucket = redissonClient.getBucket(key.asText());
+						rBucket.set(value.toString());
+						System.out.println(rBucket.get());
+
+						RKeys keys = redissonClient.getKeys();
+						Iterable<String> allkeys = keys.getKeys();
+						for(String item : allkeys)
+							System.out.println(item);
+
+					}
+				};
+		deviceDataReadSubClient.setSubTopic(subTopic);
+		deviceDataReadSubClient.connect();
+		deviceDataReadSubClient.subscribe(subTopic,qos);
+
+
+		//only for test. publish topic "/devices/reply/data";
+		pubTopic = "/devices/reply/data";
+		action = "publish";
+		clientId = subTopic + " " + action;
+		MqttAsyncCallback deviceDataReplyPubClient =
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
+		deviceDataReplyPubClient.connect();
+		String replyData = "{\n"+
+							  "\"key\": \"Map:1:3:2:100\",\n"+
+							  "\"value\": {\"number\":3,\n"+
+							  "\"deviceId\":2,\n"+
+							  "\"name\":\"ammeter\",\n"+
+							  "\"current\":3,\n"+
+							  "\"timestamp\":\"2019-01-11 13:14:15\"}\n"+
+							"}";
+/*		String replyData = "{\n"+
+							  "\"Key\": \"Map:1:3:2:100\",\n"+
+							  "\"value\": 3\n"+
+							"}";*/
+		deviceDataReplyPubClient.publish(pubTopic,qos,replyData.getBytes());
 	}
 	
 	/*public void testLocalTopic() {

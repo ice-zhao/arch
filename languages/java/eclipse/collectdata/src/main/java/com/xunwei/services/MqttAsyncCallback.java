@@ -15,15 +15,15 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 
-public class MqttAsyncCallback implements MqttCallback {
+public class MqttAsyncCallback implements MqttCallback,Runnable {
 	private int state = BEGIN;
 	private String topic 		= "";
 	private int qos 			= 2;
 	String broker 		= "m2m.eclipse.org";
 	int port 			= 1883;
 	String clientId 	= null;
-	String subTopic		= "Sample/#";
-	String pubTopic 	= "Sample/Java/v3";
+	private String subTopic		= "Sample/#";
+	private String pubTopic 	= "Sample/Java/v3";
 	private boolean cleanSession = true;			// Non durable subscriptions
 	boolean ssl = false;
 	private MqttAsyncClient 	client;
@@ -242,6 +242,27 @@ public class MqttAsyncCallback implements MqttCallback {
                            "  QoS:\t" + message.getQos());
 		
 	}
+
+	public void run() {
+
+	}
+
+	public String getPubTopic() {
+		return pubTopic;
+	}
+
+	public void setPubTopic(String pubTopic) {
+		this.pubTopic = pubTopic;
+	}
+
+	public String getSubTopic() {
+		return subTopic;
+	}
+
+	public void setSubTopic(String subTopic) {
+		this.subTopic = subTopic;
+	}
+
 	/**
 	 * Connect in a non-blocking way and then sit back and wait to be
 	 * notified that the action has completed.

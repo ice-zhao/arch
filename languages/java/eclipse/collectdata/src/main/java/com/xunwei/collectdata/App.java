@@ -1,5 +1,4 @@
 package com.xunwei.collectdata;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
@@ -13,6 +12,15 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.redisson.Redisson;
+import org.redisson.api.RBucket;
+import org.redisson.api.RKeys;
+import org.redisson.api.RMap;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+
+import java.io.File;
+import java.io.IOException;
 //import org.hibernate.Transaction;
 
 
@@ -45,12 +53,9 @@ public class App
         }
     }
 	
-    public static void main( String[] args )
-    {
-//    	TopicFactory topicFactory = new TopicFactory(args);
-//    	topicFactory.testRemoteTopic();
-//    	topicFactory.testLocalTopic();
-//    	topicFactory.startAllTopics();
+    public static void main( String[] args ) {
+    	TopicFactory topicFactory = TopicFactory.getInstance(args);
+    	topicFactory.startAllTopics();
     }
 
     static void bePersistedObject(Object object) throws Throwable {
@@ -111,3 +116,19 @@ sess.save(news1);*/
 //
 //closeSession(sess);
 //closeSessionFactory();
+
+//        Config config = Config.fromJSON(new File("src/main/resources/config-redisson.json"));
+//        RedissonClient redissonClient = Redisson.create(config);
+//        RMap<String,Integer> mymap = redissonClient.getMap("mymap");
+//        mymap.put("a", 1);
+//        mymap.put("b", 23);
+//		RBucket bucket = redissonClient.getBucket("test");
+//		bucket.set("how are you.");
+//
+//		//to get all keys
+//		RKeys rKeys = redissonClient.getKeys();
+//		Iterable<String> allKeys = rKeys.getKeys();
+//		for(String key : allKeys)
+//			System.out.println(key);
+//
+//        redissonClient.shutdown();
