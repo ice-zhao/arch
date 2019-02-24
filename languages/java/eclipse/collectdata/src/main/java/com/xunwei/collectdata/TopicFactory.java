@@ -2,18 +2,19 @@ package com.xunwei.collectdata;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xunwei.collectdata.devices.Device;
 import com.xunwei.collectdata.devices.Host;
+import com.xunwei.collectdata.utils.JacksonFactory;
+import com.xunwei.collectdata.utils.RedissonClientFactory;
 import com.xunwei.services.MqttAsyncCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.hibernate.Session;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RBucket;
 import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 class TopicFactory {
@@ -97,8 +98,11 @@ class TopicFactory {
 		if(isStartAll) return;
 
 		try {
-//			talkOnRegisterHost();
+			talkOnRegisterHost();
+			talkOnRegisterDevices();
 			talkOnDeviceDataRead();
+			talkOnDeviceAlert();
+			talkOnDeviceStatus();
 			isStartAll = true;
 		} catch(MqttException me) {
 			// Display full details of any exception that occurs
@@ -126,18 +130,23 @@ class TopicFactory {
 		MqttAsyncCallback regHostSubClient = 
 				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
-				super.messageArrived(topic, message);
+//				super.messageArrived(topic, message);
 
 				//parse received JSON data.
 				String receivedData = new String(message.getPayload());
 				ObjectMapper mapper = new ObjectMapper();
 				Host host = mapper.readValue(receivedData, Host.class);
-				System.out.println("----------"+ host.getName());
 
 				//To persist data
-				boolean result = true;
+				boolean result = false;
 				try {
-					App.bePersistedObject(host);
+					Session sess = App.getSession();
+					Object test = sess.get(Host.class, host.getHostID());
+					if(test == null) {
+						App.bePersistedObject(host);
+						result = true;
+					}
+					sess.close();
 				} catch (Throwable throwable) {
 					throwable.printStackTrace();
 					result = false;
@@ -145,11 +154,11 @@ class TopicFactory {
 
 				String jsonData = "{\n" +
 								"\"ErrNumber\":0,\n" +
-								"\"Description\":\"process data successfully.\"\n" +
+								"\"Description\":\"Host registers successfully.\"\n" +
 								"}";
 				if(!result) jsonData = "{\n" +
 								"\"ErrNumber\":-1,\n" +
-								"\"Description\":\"process data failure.\"\n" +
+								"\"Description\":\"Host has been registered.\"\n" +
 								"}";
 				try {
 					super.publish(pubTopic,qos,jsonData.getBytes());
@@ -205,11 +214,13 @@ class TopicFactory {
 
 					public void run() {
 						String jsonData;
-						try {
-							jsonData = queue.poll(0, TimeUnit.DAYS);		//infinitely wait
-							this.publish(this.getPubTopic(),qos,jsonData.getBytes());
-						} catch (Throwable throwable) {
-							throwable.printStackTrace();
+						while(true) {
+							try {
+								jsonData = queue.poll(0, TimeUnit.DAYS);        //infinitely wait
+								this.publish(this.getPubTopic(), qos, jsonData.getBytes());
+							} catch (Throwable throwable) {
+								throwable.printStackTrace();
+							}
 						}
 					}
 				};
@@ -217,7 +228,6 @@ class TopicFactory {
 		deviceDataReadPubClient.connect();
 
 		Thread t = new Thread(deviceDataReadPubClient);
-
 		t.start();
 
 		//subscribe topic /devices/reply/data to store data in redis
@@ -232,10 +242,13 @@ class TopicFactory {
 //						super.messageArrived(topic, message);
 						System.out.println("----------------");
 						//store JSON data in redis
-						ObjectMapper objectMapper = new ObjectMapper();
-						JsonNode rootNode = objectMapper.readTree(message.getPayload());
-						JsonNode key = rootNode.path("key");
-						JsonNode value = rootNode.path("value");
+//						ObjectMapper objectMapper = new ObjectMapper();
+//						JsonNode rootNode = objectMapper.readTree(message.getPayload());
+//						JsonNode key = rootNode.path("key");
+//						JsonNode value = rootNode.path("value");
+						String data = new String(message.getPayload());
+						JsonNode key = JacksonFactory.findJsonNode(data, "/key");
+						JsonNode value = JacksonFactory.findJsonNode(data,"/value");
 
 //						System.out.println(value.toString());
 						RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
@@ -263,7 +276,7 @@ class TopicFactory {
 				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
 		deviceDataReplyPubClient.connect();
 		String replyData = "{\n"+
-							  "\"key\": \"Map:1:3:2:100\",\n"+
+							  "\"key\": \"1:3:3:100\",\n"+
 							  "\"value\": {\"number\":3,\n"+
 							  "\"deviceId\":2,\n"+
 							  "\"name\":\"ammeter\",\n"+
@@ -276,7 +289,108 @@ class TopicFactory {
 							"}";*/
 		deviceDataReplyPubClient.publish(pubTopic,qos,replyData.getBytes());
 	}
-	
+
+	private void talkOnRegisterDevices() throws Throwable {
+		//subscribe topic /control/register/dcms/device to register device in mysql
+		String subTopic = "/control/register/dcms/device";
+		pubTopic = "/control/register/dcms/device/ack";
+		action = "subscribe";
+
+		//create subscribe client
+		clientId = subTopic + " " + action;
+		MqttAsyncCallback registerDeviceSubClient =
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
+					public void messageArrived(String topic, MqttMessage message) throws Exception {
+						super.messageArrived(topic, message);
+						//store JSON data in redis
+						ObjectMapper mapper = new ObjectMapper();
+						Device device = mapper.readValue(message.getPayload(), Device.class);
+
+						//To persist data
+						boolean result = true;
+						try {
+							App.bePersistedObject(device);
+						} catch (Throwable throwable) {
+							throwable.printStackTrace();
+							result = false;
+						}
+
+						String reply = "{\n" +
+								"\"ErrNumber\":0,\n" +
+								"\"Description\":\"Device registers successfully.\"\n" +
+								"}";
+						if(!result) reply = "{\n" +
+								"\"ErrNumber\":-1,\n" +
+								"\"Description\":\"Device has been registered.\"\n" +
+								"}";
+
+						try {
+							super.publish(pubTopic,qos,reply.getBytes());
+						} catch (Throwable e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				};
+		registerDeviceSubClient.setSubTopic(subTopic);
+		registerDeviceSubClient.connect();
+		registerDeviceSubClient.subscribe(subTopic,qos);
+	}
+
+	private void talkOnDeviceAlert() throws Throwable {
+		String subTopic = "/devices/alert";
+		action = "subscribe";
+
+		clientId = subTopic + " " + action;
+		MqttAsyncCallback deviceAlertSubClient =
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
+					public void messageArrived(String topic, MqttMessage message) throws Exception {
+//						super.messageArrived(topic, message);
+						ObjectMapper objectMapper = new ObjectMapper();
+						JsonNode rootNode = objectMapper.readTree(message.getPayload());
+						JsonNode key = rootNode.at("/key");
+						JsonNode value = rootNode.at("/value");
+						storeBucketToRedis(key,value);
+					}
+				};
+		deviceAlertSubClient.setSubTopic(subTopic);
+		deviceAlertSubClient.connect();
+		deviceAlertSubClient.subscribe(subTopic,qos);
+	}
+
+	private void talkOnDeviceStatus() throws Throwable {
+		String subTopic = "/devices/status";
+		action = "subscribe";
+
+		clientId = subTopic + " " + action;
+		MqttAsyncCallback deviceStatusSubClient =
+				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
+					public void messageArrived(String topic, MqttMessage message) throws Exception {
+//						super.messageArrived(topic, message);
+						String data = new String(message.getPayload());
+						JsonNode key = JacksonFactory.findJsonNode(data,"/key");
+						JsonNode value = JacksonFactory.findJsonNode(data,"/value");
+						storeBucketToRedis(key,value);
+					}
+				};
+
+		deviceStatusSubClient.setSubTopic(subTopic);
+		deviceStatusSubClient.connect();
+		deviceStatusSubClient.subscribe(subTopic,qos);
+	}
+
+	private void storeBucketToRedis(JsonNode key, JsonNode value) {
+		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
+		RBucket<String> rBucket = redissonClient.getBucket(key.asText());
+		rBucket.set(value.toString());
+	}
+
+
+
+
+
+
+
 	/*public void testLocalTopic() {
 		// With a valid set of arguments, the real work of
 		// driving the client API can begin

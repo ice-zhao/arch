@@ -1,24 +1,43 @@
 package com.xunwei.collectdata.devices;
 
-public class Device implements IDevice {
-	private Integer deviceId;
-	private String deviceName;
-	
-	
-	public void setDeviceId(Integer deviceId) {
-		this.deviceId = deviceId;
+import java.io.Serializable;
+
+public class Device implements IDevice, Serializable {
+	private Integer hostID;
+	private Integer deviceNumber;
+	private Integer deviceType;
+	private String	name;
+
+
+	public Integer getHostID() {
+		return hostID;
 	}
-	
-	public Integer getDeviceId() {
-		return this.deviceId;
+
+	public void setHostID(Integer hostID) {
+		this.hostID = hostID;
 	}
-	
-	
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
+
+	public String getName() {
+		return name;
 	}
-	
-	public String getDeviceName() {
-		return this.deviceName;
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(Integer deviceType) {
+		this.deviceType = deviceType;
+	}
+
+	public Integer getDeviceNumber() {
+		return deviceNumber;
+	}
+
+	public void setDeviceNumber(Integer deviceNumber) {
+		this.deviceNumber = deviceNumber;
 	}
 }

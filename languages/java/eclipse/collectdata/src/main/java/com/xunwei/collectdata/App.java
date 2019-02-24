@@ -1,4 +1,5 @@
 package com.xunwei.collectdata;
+import com.sun.org.apache.xerces.internal.impl.xs.SchemaSymbols;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
@@ -37,11 +38,11 @@ public class App
 		}
 	}
 
-	private static Session getSession() throws HibernateException {
+	static Session getSession() throws HibernateException {
 		return concreteSessionFactory.openSession();
 	}
 	
-    private static void closeSession(Session session){
+    static void closeSession(Session session){
         if(session != null){
             session.close();
         }
@@ -56,6 +57,10 @@ public class App
     public static void main( String[] args ) {
     	TopicFactory topicFactory = TopicFactory.getInstance(args);
     	topicFactory.startAllTopics();
+
+		//start data process thread
+		Thread t = new DataProcessThread();
+		t.start();
     }
 
     static void bePersistedObject(Object object) throws Throwable {

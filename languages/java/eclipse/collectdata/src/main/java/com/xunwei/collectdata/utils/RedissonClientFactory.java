@@ -1,4 +1,4 @@
-package com.xunwei.collectdata;
+package com.xunwei.collectdata.utils;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;

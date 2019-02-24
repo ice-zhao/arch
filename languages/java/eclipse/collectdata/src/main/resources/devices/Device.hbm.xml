@@ -4,7 +4,11 @@
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.xunwei.collectdata.devices">
     <class name="Device" table="devices_tbl">
-        <id name="deviceId" type="integer"></id>
-        <property name="deviceName"  type="string"></property>
+        <composite-id class="Device">
+            <key-property name="hostID" type="integer"></key-property>
+            <key-property name="deviceNumber" type="integer"></key-property>
+        </composite-id>
+        <property name="deviceType"  type="integer"></property>
+        <property name="name"  type="string"></property>
     </class>
 </hibernate-mapping>
