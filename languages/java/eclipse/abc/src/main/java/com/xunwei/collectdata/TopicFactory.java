@@ -139,17 +139,19 @@ class TopicFactory {
 
 				//To persist data
 				boolean result = false;
+				Session sess = App.getSession();
+				
 				try {
-					Session sess = App.getSession();
 					Object test = sess.get(Host.class, host.getHostID());
 					if(test == null) {
 						App.bePersistedObject(host);
 						result = true;
 					}
-					sess.close();
 				} catch (Throwable throwable) {
 					throwable.printStackTrace();
 					result = false;
+				} finally {
+					sess.close();
 				}
 
 				String jsonData = "{\n" +
