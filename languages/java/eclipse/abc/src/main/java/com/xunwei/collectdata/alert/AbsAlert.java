@@ -1,6 +1,6 @@
 package com.xunwei.collectdata.alert;
 
-import java.sql.Date;
+import java.util.Date;
 
 import com.xunwei.collectdata.IDataProcess;
 

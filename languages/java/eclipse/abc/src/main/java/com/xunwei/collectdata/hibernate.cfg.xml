@@ -35,8 +35,9 @@
 <!-- 	  <mapping class="com.xuwei.abc.devices.News"/> -->
            
       <!-- List of XML mapping files --> 
-      <mapping resource = "com/xunwei/collectdata/devices/resource/Device.hbm.xml"/>
-      <mapping resource = "com/xunwei/collectdata/devices/resource/News.hbm.xml"/>
+<!--       <mapping resource = "com/xunwei/collectdata/devices/resource/Device.hbm.xml"/>
+      <mapping resource = "com/xunwei/collectdata/devices/resource/News.hbm.xml"/> -->
+      <mapping resource = "com/xunwei/collectdata/devices/resource/SysAlert.hbm.xml"/>
    </session-factory>
 <!--
 	<session-factory name="foo">

@@ -5,6 +5,7 @@ import com.xunwei.collectdata.DeviceType;
 public class AlertProcessFactory {
 	private static AmmeterAlert ammeterAlert;
 	private static UPSAlert	upsAlert;
+	private static SysAlert	sysAlert;
 	
 	public static AbsAlert getAlertInstance(DeviceType devType) {
 		if(devType == DeviceType.Ammeter) {
@@ -18,6 +19,14 @@ public class AlertProcessFactory {
 				upsAlert = new UPSAlert();
 			return upsAlert;
 		}
+		
+		if(devType == DeviceType.SysAlert) {
+			if(sysAlert == null)
+				sysAlert = new SysAlert();
+			return sysAlert;
+		}
+		
+		
 		
 		return null;
 	}

@@ -1,6 +1,9 @@
 package com.xunwei.collectdata;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+//import org.hibernate.mapping.List;
+import org.hibernate.query.Query;
+import org.hibernate.type.TimestampType;
 
 //import com.xunwei.collectdata.devices.Device;
 //import com.xunwei.collectdata.devices.News;
@@ -19,9 +22,15 @@ import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
+import com.xunwei.collectdata.alert.SysAlert;
+
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 //import org.hibernate.Transaction;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 
 public class App 
@@ -37,7 +46,7 @@ public class App
 		}
 	}
 
-	static Session getSession() throws HibernateException {
+	public static Session getSession() throws HibernateException {
 		return concreteSessionFactory.openSession();
 	}
 	
@@ -53,16 +62,41 @@ public class App
         }
     }
 	
-    public static void main( String[] args ) {
-    	TopicFactory topicFactory = TopicFactory.getInstance(args);
-    	topicFactory.startAllTopics();
+    public static void main( String[] args ) throws Throwable {
+//    	TopicFactory topicFactory = TopicFactory.getInstance(args);
+//    	topicFactory.startAllTopics();
 
 		//start data process thread
-		Thread t = new DataProcessThread();
-		t.start();
+//		Thread t = new DataProcessThread();
+//		t.start();
+    	SysAlert sa = new SysAlert();
+    	sa.setDeviceNumber(1);
+    	sa.setInfo("hahahaha");
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    	Date d;
+    	Session sess = App.getSession();
+		try {
+//			d = sdf.parse("2019-03-09 15:03:30");
+			d = sdf.parse("2019-03-09 00:10:00");
+			sa.setTimestamp(d);
+			sa.setEndTime(d);
+			Query<?> query = sess.createQuery("select 1 from SysAlert where timestamp = :time");
+			query.setParameter("time", sa.getTimestamp(), TimestampType.INSTANCE);
+			List<?> ls = (List<?>) query.getResultList();
+			System.out.println(ls);
+//			System.out.println(query.getResultList());
+			if(ls.isEmpty())
+				App.bePersistedObject(sa);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			sess.close();
+		}
+    	
     }
 
-    static void bePersistedObject(Object object) throws Throwable {
+    public static void bePersistedObject(Object object) throws Throwable {
 		Session sess = getSession();
 		Transaction tx = sess.beginTransaction();
 		sess.save(object);
