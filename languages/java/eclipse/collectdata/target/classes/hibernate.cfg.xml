@@ -38,6 +38,7 @@
       <mapping resource = "devices/Device.hbm.xml"/>
       <!--<mapping resource = "devices/News.hbm.xml"/>-->
       <mapping resource = "devices/Host.hbm.xml"/>
+      <mapping resource = "devices/SysAlert.hbm.xml"/>
    </session-factory>
 <!--
 	<session-factory name="foo">

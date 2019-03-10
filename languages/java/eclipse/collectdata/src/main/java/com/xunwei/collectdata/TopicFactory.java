@@ -10,11 +10,14 @@ import com.xunwei.services.MqttAsyncCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
+import org.hibernate.type.TimestampType;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RBucket;
 import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class TopicFactory {
@@ -139,17 +142,22 @@ class TopicFactory {
 
 				//To persist data
 				boolean result = false;
+				Session sess = App.getSession();
+				
 				try {
-					Session sess = App.getSession();
-					Object test = sess.get(Host.class, host.getHostID());
-					if(test == null) {
+//					Object test = sess.get(Host.class, host.getHostID());
+					Query query = sess.createQuery("select 1 from Host where hostID = :hostid");
+					query.setParameter("hostid", host.getHostID());
+					List list = query.getResultList();
+					if(list.isEmpty()) {
 						App.bePersistedObject(host);
 						result = true;
 					}
-					sess.close();
 				} catch (Throwable throwable) {
 					throwable.printStackTrace();
 					result = false;
+				} finally {
+					sess.close();
 				}
 
 				String jsonData = "{\n" +
@@ -191,10 +199,11 @@ class TopicFactory {
 				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
 		regHostPubClient.connect();
 		String dcmsJson = "{\n" +
-				"\"hostID\" : 8,\n" +
-				"\"areaID\" : 9,\n" +
-				"\"buildingID\" : 10,\n" +
-				"\"name\" : \"sample park\",\n" +
+				"\"hostID\" : \"8\",\n" +
+//				"\"areaID\" : 9,\n" +
+//				"\"buildingID\" : 10,\n" +
+				"\"remoteServerAddr\" : \"10.0.1.123\",\n" +
+				"\"floor\" : 20,\n" +
 				"\"serial\" : \"user defined\"\n" +
 				"}";
 		regHostPubClient.publish(pubHostTopic,qos,dcmsJson.getBytes());
@@ -242,15 +251,10 @@ class TopicFactory {
 //						super.messageArrived(topic, message);
 						System.out.println("----------------");
 						//store JSON data in redis
-//						ObjectMapper objectMapper = new ObjectMapper();
-//						JsonNode rootNode = objectMapper.readTree(message.getPayload());
-//						JsonNode key = rootNode.path("key");
-//						JsonNode value = rootNode.path("value");
 						String data = new String(message.getPayload());
 						JsonNode key = JacksonFactory.findJsonNode(data, "/key");
 						JsonNode value = JacksonFactory.findJsonNode(data,"/value");
 
-//						System.out.println(value.toString());
 						RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
 						RBucket<String> rBucket = redissonClient.getBucket(key.asText());
 						rBucket.set(value.toString());

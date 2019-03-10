@@ -1,5 +1,6 @@
 package com.xunwei.collectdata;
-import com.sun.org.apache.xerces.internal.impl.xs.SchemaSymbols;
+import com.xunwei.collectdata.alert.AlertProcessThread;
+import com.xunwei.collectdata.utils.TestData;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
@@ -13,15 +14,6 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.redisson.Redisson;
-import org.redisson.api.RBucket;
-import org.redisson.api.RKeys;
-import org.redisson.api.RMap;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
-
-import java.io.File;
-import java.io.IOException;
 //import org.hibernate.Transaction;
 
 
@@ -38,7 +30,7 @@ public class App
 		}
 	}
 
-	static Session getSession() throws HibernateException {
+	public static Session getSession() throws HibernateException {
 		return concreteSessionFactory.openSession();
 	}
 	
@@ -61,9 +53,21 @@ public class App
 		//start data process thread
 		Thread t = new DataProcessThread();
 		t.start();
-    }
 
-    static void bePersistedObject(Object object) throws Throwable {
+		//start alert process thread
+		Thread alert = new AlertProcessThread();
+		alert.start();
+
+		//produce Testing data
+		TestData testData = new TestData();
+		try {
+			testData.produceAlertData();
+		} catch (Throwable throwable) {
+			throwable.printStackTrace();
+		}
+	}
+
+    public static void bePersistedObject(Object object) throws Throwable {
 		Session sess = getSession();
 		Transaction tx = sess.beginTransaction();
 		sess.save(object);

@@ -3,11 +3,14 @@
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.xunwei.collectdata.devices">
-    <class name="Host" table="d_dcms">
-        <id name="hostID" type="integer"></id>
-        <property name="areaID" type="integer"></property>
-        <property name="buildingID" type="integer"></property>
-        <property name="name" type="string"></property>
-        <property name="serial" type="string"></property>
+    <class name="Host" table="t_sys_host">
+        <id name="id" column="ID">
+            <generator class="increment"/>
+        </id>
+        <property name="hostID" column= "HostNo" type="string"></property>
+        <property name="RemoteServerAddr" column= "RemoteServerAddr" type="string"></property>
+        <property name="buildingID" column= "BuId" type="integer"></property>
+        <property name="areaID" column="ParkId" type="integer"></property>
+        <property name="floor" column= "Floor" type="integer"></property>
     </class>
 </hibernate-mapping>

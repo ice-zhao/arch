@@ -1,7 +1,6 @@
-package com.xunwei.collectdata.devices;
-import com.xunwei.collectdata.*;
+package com.xunwei.collectdata.alert;
 
-public class AmmeterData extends AbsDataProcess {
+public class AmmeterAlert extends AbsAlert {
 	public Boolean readData() {
 		// TODO Auto-generated method stub
 		return true;
