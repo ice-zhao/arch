@@ -26,8 +26,7 @@ public class AlertProcessFactory {
 			return sysAlert;
 		}
 		
-		
-		
+
 		return null;
 	}
 }

@@ -5,19 +5,19 @@ import com.xunwei.collectdata.DeviceType;
 public class AlertProcessThread extends Thread {
 	public void run() {
         DeviceType []deviceType = DeviceType.values();
-        
-        while(true) {
+
+        do {
             for (DeviceType item : deviceType) {
-            	AbsAlert alertProcess = AlertProcessFactory.getAlertInstance(item);
+                AbsAlert alertProcess = AlertProcessFactory.getAlertInstance(item);
                 if (alertProcess != null)
-                	alertProcess.produceAlertData();
+                    alertProcess.produceAlertData();
             }
-        	try {
+            try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        } while (true);
 	}
 
 }

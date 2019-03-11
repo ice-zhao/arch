@@ -12,29 +12,29 @@ public class UPSAlert extends AbsAlert {
 	 private float current;
 
 	 private HashMap<String, String> data;
-	@Override
+
 	public Boolean readData() {
 		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
 		RKeys rKeys = redissonClient.getKeys();
-		return null;
+		return true;
 	}
 
-	@Override
+
 	public Boolean processData() {
 		// TODO Auto-generated method stub
-		return null;
+		return true;
 	}
 
-	@Override
+
 	public Boolean storeData() {
 		// TODO Auto-generated method stub
-		return null;
+		return true;
 	}
 
-	@Override
+
 	public Boolean cleanupData() {
 		// TODO Auto-generated method stub
-		return null;
+		return true;
 	}
 
 	public float getVoltage() {

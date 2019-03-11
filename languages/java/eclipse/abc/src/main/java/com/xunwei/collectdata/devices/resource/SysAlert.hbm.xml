@@ -9,8 +9,8 @@
     	</id>
         <property name="deviceNumber"  column = "DID" type="int"></property>
         <property name="info"  column = "AlarmName" type="string"></property>
-        <property name="timestamp"  column = "StartTime" type="date"></property>
-        <property name="endTime"  column = "EndTime" type="date"></property>
+        <property name="timestamp"  column = "StartTime" type="java.util.Date"></property>
+        <property name="endTime"  column = "EndTime" type="java.util.Date"></property>
         <property name="alertLevel"  column = "AlarmLevel" type="int"></property>
     </class>
 </hibernate-mapping>

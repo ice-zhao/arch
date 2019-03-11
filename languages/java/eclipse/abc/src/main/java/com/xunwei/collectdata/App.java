@@ -1,4 +1,6 @@
 package com.xunwei.collectdata;
+import com.xunwei.collectdata.alert.AlertProcessThread;
+import com.xunwei.collectdata.utils.TestData;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 //import org.hibernate.mapping.List;
