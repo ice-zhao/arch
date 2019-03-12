@@ -12,7 +12,9 @@ import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xunwei.collectdata.App;
+import com.xunwei.collectdata.devices.Host;
 import com.xunwei.collectdata.utils.JacksonFactory;
 import com.xunwei.collectdata.utils.RedissonClientFactory;
 
@@ -43,25 +45,15 @@ public class SysAlert extends AbsAlert {
 	public Boolean storeData() {
 		boolean result = true;
 		Session sess = App.getSession();
+    	ObjectMapper mapper = new ObjectMapper();
 
         for (Entry<String, String> me : alertData.entrySet()) {
             try {
-                JsonNode devid = JacksonFactory.findJsonNode(me.getValue(), "/number");
-                this.setDeviceNumber(devid.asInt());
-
-                JsonNode info = JacksonFactory.findJsonNode(me.getValue(), "/info");
-                this.setInfo(info.asText());
-
-                JsonNode start = JacksonFactory.findJsonNode(me.getValue(), "/timestamp");
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date date = sdf.parse(start.asText());
-                this.setTimestamp(date);
-                this.setEndTime(date);
-
+            	String value = me.getValue();
+            	SysAlert sysAlert = mapper.readValue(value, SysAlert.class);
                 //to persist alert.
-//                Object test = sess.get(SysAlert.class, this.getTimestamp());
 				Query query = sess.createQuery("select 1 from SysAlert where timestamp = :time");
-				query.setParameter("time", date, TimestampType.INSTANCE);
+				query.setParameter("time", sysAlert.getTimestamp(), TimestampType.INSTANCE);
 				List list = query.getResultList();
 
                 if (list.isEmpty()) {

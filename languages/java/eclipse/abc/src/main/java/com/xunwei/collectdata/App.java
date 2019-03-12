@@ -1,4 +1,5 @@
 package com.xunwei.collectdata;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xunwei.collectdata.alert.AlertProcessThread;
 import com.xunwei.collectdata.utils.TestData;
 import org.hibernate.Transaction;
@@ -25,6 +26,7 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
 import com.xunwei.collectdata.alert.SysAlert;
+import com.xunwei.collectdata.devices.Host;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +73,21 @@ public class App
 		//start data process thread
 //		Thread t = new DataProcessThread();
 //		t.start();
+
+    	String dcmsJson = "{\n" +
+				"\"hostID\" : \"8\",\n" +
+//				"\"areaID\" : 9,\n" +
+//				"\"buildingID\" : 10,\n" +
+				"\"remoteServerAddr\" : \"10.0.1.123\",\n" +
+				"\"floor\" : 20,\n" +
+				"\"serial\" : \"user defined\"\n" +
+				"}";
+    	
+    	ObjectMapper mapper = new ObjectMapper();
+		Host host = mapper.readValue(dcmsJson, Host.class);
+		
+		System.out.println(host.getRemoteServerAddr());
+/*
     	SysAlert sa = new SysAlert();
     	sa.setDeviceNumber(1);
     	sa.setInfo("hahahaha");
@@ -94,7 +111,7 @@ public class App
 			e.printStackTrace();
 		} finally {
 			sess.close();
-		}
+		}*/
     	
     }
 

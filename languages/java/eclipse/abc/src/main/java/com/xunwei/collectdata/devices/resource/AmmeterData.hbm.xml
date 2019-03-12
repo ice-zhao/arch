@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.xunwei.collectdata.devices">
+    <class name="AmmeterData" table="t_ammeter">
+    	<id name="id" column="id">
+    		<generator class="increment"/>
+    	</id>
+        <property name="hostID"  column = "hostID" type="int"></property>
+        <property name="deviceNumber"  column = "devNumber" type="int"></property>
+        <property name="deviceType"  column = "deviceType" type="int"></property>
+        <property name="totalCurrent"  column = "totalCurrent" type="float"></property>
+        <property name="timestamp"  column = "StartTime" type="java.util.Date"></property>
+    </class>
+</hibernate-mapping>
