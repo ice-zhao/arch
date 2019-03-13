@@ -270,28 +270,6 @@ class TopicFactory {
 		deviceDataReadSubClient.setSubTopic(subTopic);
 		deviceDataReadSubClient.connect();
 		deviceDataReadSubClient.subscribe(subTopic,qos);
-
-
-		//only for test. publish topic "/devices/reply/data";
-		pubTopic = "/devices/reply/data";
-		action = "publish";
-		clientId = subTopic + " " + action;
-		MqttAsyncCallback deviceDataReplyPubClient =
-				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
-		deviceDataReplyPubClient.connect();
-		String replyData = "{\n"+
-							  "\"key\": \"1:3:3:100\",\n"+
-							  "\"value\": {\"number\":3,\n"+
-							  "\"deviceId\":2,\n"+
-							  "\"name\":\"ammeter\",\n"+
-							  "\"current\":3,\n"+
-							  "\"timestamp\":\"2019-01-11 13:14:15\"}\n"+
-							"}";
-/*		String replyData = "{\n"+
-							  "\"Key\": \"Map:1:3:2:100\",\n"+
-							  "\"value\": 3\n"+
-							"}";*/
-		deviceDataReplyPubClient.publish(pubTopic,qos,replyData.getBytes());
 	}
 
 	private void talkOnRegisterDevices() throws Throwable {
