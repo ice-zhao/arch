@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.xunwei.collectdata.utils.JacksonFactory;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.hibernate.type.TimestampType;
@@ -19,7 +20,7 @@ import com.xunwei.collectdata.App;
 import com.xunwei.collectdata.utils.RedissonClientFactory;
 
 public class GasData extends AbsDataProcess {
-	private Integer id;
+	private int id;
 	private float Consumption;
 	private float Pressure;
 	private HashMap<String, String> gasData = new HashMap<String, String>();
@@ -44,9 +45,7 @@ public class GasData extends AbsDataProcess {
     public Boolean storeData() {
 		boolean result = true;
 		Session sess = App.getSession();
-		ObjectMapper mapper = new ObjectMapper();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		mapper.setDateFormat(simpleDateFormat);
+		ObjectMapper mapper = JacksonFactory.getObjectMapper();
 		
         for (Entry<String, String> me : gasData.entrySet()) {
             try {
@@ -76,11 +75,11 @@ public class GasData extends AbsDataProcess {
         return true;
     }
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

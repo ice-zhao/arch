@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.xunwei.collectdata.utils.JacksonFactory;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.redisson.api.RBucket;
@@ -43,9 +44,7 @@ public class AmmeterData extends AbsDataProcess {
 	public Boolean storeData() {
 		boolean result = true;
 		Session sess = App.getSession();
-		ObjectMapper mapper = new ObjectMapper();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		mapper.setDateFormat(simpleDateFormat);
+		ObjectMapper mapper = JacksonFactory.getObjectMapper();
 		
         for (Entry<String, String> me : ammeterData.entrySet()) {
             try {
