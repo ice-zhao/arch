@@ -3,29 +3,15 @@ package com.xunwei.collectdata;
 import java.util.Date;
 
 public abstract class AbsDataProcess implements IDataProcess {
-	public int hostID;
-	public int deviceNumber;		//device number
+	public int HostId;
+	public int DevId;		//device number
 	public int deviceType;
 	public String name;		//device name
-	public Date timestamp;
-	public int areaID;
-	public int buildingID;
-	
-	public int getHostID() {
-		return hostID;
-	}
+	public Date StartTime;
+	public int ParkId;
+	public int BuildingId;
+	public String DevNo;
 
-	public void setHostID(int hostID) {
-		this.hostID = hostID;
-	}
-
-	public int getDeviceNumber() {
-		return deviceNumber;
-	}
-
-	public void setDeviceNumber(int deviceNumber) {
-		this.deviceNumber = deviceNumber;
-	}
 
 	public int getDeviceType() {
 		return deviceType;
@@ -42,29 +28,21 @@ public abstract class AbsDataProcess implements IDataProcess {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	public Date getTimestamp() {
-		return timestamp;
+
+	public int getParkId() {
+		return ParkId;
 	}
 
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	public int getAreaID() {
-		return areaID;
+	public void setParkId(int parkId) {
+		ParkId = parkId;
 	}
 
-	public void setAreaID(int areaID) {
-		this.areaID = areaID;
+	public int getBuildingId() {
+		return BuildingId;
 	}
 
-	public int getBuildingID() {
-		return buildingID;
-	}
-
-	public void setBuildingID(int buildingID) {
-		this.buildingID = buildingID;
+	public void setBuildingId(int buildingId) {
+		BuildingId = buildingId;
 	}
 	
 	public final Boolean produceData() {
@@ -77,5 +55,37 @@ public abstract class AbsDataProcess implements IDataProcess {
 		if(!cleanupData()) return false;
 		
 		return true;
+	}
+
+	public int getHostId() {
+		return HostId;
+	}
+
+	public void setHostId(int hostId) {
+		HostId = hostId;
+	}
+
+	public int getDevId() {
+		return DevId;
+	}
+
+	public void setDevId(int devId) {
+		DevId = devId;
+	}
+
+	public Date getStartTime() {
+		return StartTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		StartTime = startTime;
+	}
+
+	public String getDevNo() {
+		return DevNo;
+	}
+
+	public void setDevNo(String devNo) {
+		DevNo = devNo;
 	}
 }

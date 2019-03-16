@@ -55,7 +55,7 @@ public class WaterData extends AbsDataProcess {
             	WaterData water = mapper.readValue(value, WaterData.class);
                 //to persist alert.
 				Query query = sess.createQuery("select 1 from WaterData where StartTime = :time");
-				query.setParameter("time", water.getTimestamp(), TimestampType.INSTANCE);
+				query.setParameter("time", water.getStartTime(), TimestampType.INSTANCE);
 				
 				List list = query.getResultList();
                 if (list.isEmpty()) {

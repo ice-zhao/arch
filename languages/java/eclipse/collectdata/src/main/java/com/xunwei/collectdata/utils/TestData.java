@@ -33,12 +33,16 @@ public class TestData {
 
         String alertData = "{\n"+
                 "\"key\": \"1:3:3:110\",\n"+
-                "\"value\": {\"deviceType\":3,\n"+
+                "\"value\": {" +
+				"\"deviceType\":3,\n"+
+				"\"devId\":1,\n"+
                 "\"alarmName\":\"电表错误\",\n"+
-                "\"name\":\"ammeter\",\n"+
-                "\"deviceNumber\":3,\n"+
+                "\"alarmSite\":\"园区1\",\n"+
                 "\"alertLevel\":1,\n"+
-                "\"timestamp\":\"2019-01-11 13:14:15\",\n"+
+				"\"hostId\":1,\n"+
+				"\"parkId\":1,\n"+
+				"\"devNo\":\"dev_1\",\n"+
+                "\"startTime\":\"2019-01-11 13:14:15\",\n"+
                 "\"endTime\":\"2019-01-12 16:14:15\"}\n"+
                 "}";
 
@@ -57,42 +61,48 @@ public class TestData {
 		//ammeter
 		String ammeterData = "{\n"+
 							  "\"key\": \"1:6:1:100\",\n"+
-							  "\"value\": {\"hostID\":1,\n"+
-							  "\"deviceNumber\":6,\n"+
-							  "\"deviceType\":1,\n"+
-							  "\"name\":\"ammeter\",\n"+
-							  "\"totalCurrent\":800.8,\n"+
-							  "\"timestamp\":\"2019-03-11 13:14:15\"}\n"+
+							  "\"value\": {\n" +
+                              "\"ua\":300.3,\n"+
+                              "\"ia\":1.9,\n"+
+                              "\"activePower\":3.9,\n"+
+//                              "\"parkId\" : 6,\n" +
+//				              "\"buildingId\" : 5,\n" +
+                              "\"devId\":1,\n"+
+                              "\"hostId\":1,\n"+
+                              "\"devNo\":\"dev_1\",\n"+
+							  "\"startTime\":\"2019-03-11 13:14:15\"}\n"+
 							"}";
 		deviceDataReplyPubClient.publish(pubTopic,qos,ammeterData.getBytes());
-		
+
 		//Gas
 		String gasData = "{\n"+
 				  "\"key\": \"8:9:3:100\",\n"+
-				  "\"value\": {\"deviceNumber\":9,\n"+
-				  "\"deviceType\":3,\n"+
-				  "\"name\":\"ammeter\",\n"+
+				  "\"value\": {\n" +
 				  "\"consumption\":100.5,\n"+
 				  "\"pressure\":123.6,\n"+
-//				  "\"areaID\" : 9,\n" +
-//				  "\"buildingID\" : 10,\n" +
-				  "\"timestamp\":\"2019-03-11 09:08:06\"}\n"+
+//				  "\"parkId\" : 6,\n" +
+//				  "\"buildingId\" : 5,\n" +
+                  "\"devId\":1,\n"+
+                  "\"hostId\":1,\n"+
+                  "\"devNo\":\"dev_5\",\n"+
+				  "\"startTime\":\"2019-03-11 09:08:06\"}\n"+
 				"}";
 		deviceDataReplyPubClient.publish(pubTopic,qos,gasData.getBytes());
-		
+
 		//water
 		String waterData = "{\n"+
 				  "\"key\": \"5:6:2:100\",\n"+
-				  "\"value\": {\"deviceNumber\":6,\n"+
-				  "\"deviceType\":2,\n"+
-				  "\"name\":\"ammeter\",\n"+
+				  "\"value\": {\n" +
 				  "\"consumption\":3000.5,\n"+
 				  "\"quality\":\"100\",\n"+
 				  "\"pressure\":123.6,\n"+
 				  "\"speed\":50.8,\n"+
-//				  "\"areaID\" : 9,\n" +
-//				  "\"buildingID\" : 10,\n" +
-				  "\"timestamp\":\"2019-03-11 09:08:06\"}\n"+
+				  "\"parkId\" : 9,\n" +
+				  "\"buildingId\" : 10,\n" +
+                  "\"devId\":1,\n"+
+                  "\"hostId\":1,\n"+
+                  "\"devNo\":\"dev_8\",\n"+
+				  "\"startTime\":\"2019-03-11 09:08:06\"}\n"+
 				"}";
 		deviceDataReplyPubClient.publish(pubTopic,qos,waterData.getBytes());
     }

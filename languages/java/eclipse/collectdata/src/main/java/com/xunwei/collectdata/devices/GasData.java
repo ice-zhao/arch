@@ -52,10 +52,17 @@ public class GasData extends AbsDataProcess {
             	String value = me.getValue();
             	GasData gas = mapper.readValue(value, GasData.class);
                 //to persist alert.
-				Query query = sess.createQuery("select 1 from GasData where timestamp = :time");
-				query.setParameter("time", gas.getTimestamp(), TimestampType.INSTANCE);
+				Query query = sess.createQuery("select Consumption, Pressure" +
+						" from GasData where StartTime = :time");
+				query.setParameter("time", gas.getStartTime(), TimestampType.INSTANCE);
 				
 				List list = query.getResultList();
+				//only for testing
+//				List<Object[]> list1 = query.list();
+//				for(Object[] row : list1) {
+//					System.out.println( row[0].toString()+ "    @@@@@@@@@@@@@@@@@");
+//					System.out.println( row[1].toString()+ "    @@@@@@@@@@@@@@@@@");
+//				}
                 if (list.isEmpty()) {
                     App.bePersistedObject(gas);
                 }

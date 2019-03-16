@@ -7,10 +7,14 @@
     	<id name="id" column="ID">
     		<generator class="increment"/>
     	</id>
-        <property name="deviceNumber"  column = "DID" type="int"></property>
+        <property name="DevId"  column = "DevId" type="int"></property>
         <property name="alarmName"  column = "AlarmName" type="string"></property>
-        <property name="timestamp"  column = "StartTime" type="java.util.Date"></property>
+        <property name="AlarmSite"  column = "AlarmSite" type="string"></property>
+        <property name="StartTime"  column = "StartTime" type="java.util.Date"></property>
         <property name="endTime"  column = "EndTime" type="java.util.Date"></property>
         <property name="alertLevel"  column = "AlarmLevel" type="int"></property>
+        <property name="HostId"  column = "HostId" type="int"></property>
+        <!--<property name="ParkId"  column = "ParkId" type="int"></property>-->
+        <property name="devNo"  column = "DevNo" type="string"></property>
     </class>
 </hibernate-mapping>
