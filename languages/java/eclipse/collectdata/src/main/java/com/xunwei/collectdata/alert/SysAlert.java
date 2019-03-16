@@ -1,6 +1,7 @@
 package com.xunwei.collectdata.alert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.org.apache.xerces.internal.impl.xs.SchemaSymbols;
 import com.xunwei.collectdata.App;
 import com.xunwei.collectdata.utils.RedissonClientFactory;
 import org.hibernate.Session;
@@ -8,6 +9,7 @@ import org.hibernate.query.Query;
 import org.hibernate.type.TimestampType;
 import org.redisson.api.RBucket;
 import org.redisson.api.RKeys;
+import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 
 import java.text.SimpleDateFormat;
@@ -27,10 +29,12 @@ public class SysAlert extends AbsAlert {
 		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
 		RKeys keys = redissonClient.getKeys();
 		Iterable<String> allKeys = keys.getKeysByPattern("*:*:*:110");
-		
+
 		for(String item : allKeys) {
-			RBucket<String> rbucket = redissonClient.getBucket(item);
-			alertData.put(item, rbucket.get());
+//			RBucket<String> rbucket = redissonClient.getBucket(item);
+//			alertData.put(item, rbucket.get());
+			RList<String> rList = redissonClient.getList(item);
+			alertData.put(item, rList.get(0));
 		}
 		
 		return true;

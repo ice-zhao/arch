@@ -62,7 +62,7 @@ public class App
 		TestData testData = new TestData();
 		try {
 			testData.produceAlertData();
-//			testData.produceDeviceData();
+			testData.produceDeviceData();
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
 		}

@@ -10,6 +10,7 @@ import org.hibernate.query.Query;
 import org.hibernate.type.TimestampType;
 import org.redisson.api.RBucket;
 import org.redisson.api.RKeys;
+import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,8 +32,9 @@ public class WaterData extends AbsDataProcess {
 		Iterable<String> allKeys = keys.getKeysByPattern("*:*:2:100");
 		
 		for(String item : allKeys) {
-			RBucket<String> rbucket = redissonClient.getBucket(item);
-			waterData.put(item, rbucket.get());
+//			RBucket<String> rbucket = redissonClient.getBucket(item);
+			RList<String> rList = redissonClient.getList(item);
+			waterData.put(item, rList.get(0));
 		}
         return true;
     }
