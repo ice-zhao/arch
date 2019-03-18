@@ -19,7 +19,7 @@
    "threads":0,
    "nettyThreads":0,
    "codec":{
-      "class":"org.redisson.codec.FstCodec"
+      "class":"org.redisson.client.codec.StringCodec"
    },
    "transportMode":"NIO"
 }

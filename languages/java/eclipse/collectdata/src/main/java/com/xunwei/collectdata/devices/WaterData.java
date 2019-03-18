@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.xunwei.collectdata.utils.JacksonFactory;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.hibernate.type.TimestampType;
 import org.redisson.api.RBucket;
 import org.redisson.api.RKeys;
+import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,8 +33,9 @@ public class WaterData extends AbsDataProcess {
 		Iterable<String> allKeys = keys.getKeysByPattern("*:*:2:100");
 		
 		for(String item : allKeys) {
-			RBucket<String> rbucket = redissonClient.getBucket(item);
-			waterData.put(item, rbucket.get());
+//			RBucket<String> rbucket = redissonClient.getBucket(item);
+			RList<String> rList = redissonClient.getList(item);
+			waterData.put(item, rList.get(0));
 		}
         return true;
     }
@@ -44,9 +47,7 @@ public class WaterData extends AbsDataProcess {
     public Boolean storeData() {
 		boolean result = true;
 		Session sess = App.getSession();
-		ObjectMapper mapper = new ObjectMapper();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		mapper.setDateFormat(simpleDateFormat);
+		ObjectMapper mapper = JacksonFactory.getObjectMapper();
 
         for (Entry<String, String> me : waterData.entrySet()) {
             try {
@@ -54,7 +55,7 @@ public class WaterData extends AbsDataProcess {
             	WaterData water = mapper.readValue(value, WaterData.class);
                 //to persist alert.
 				Query query = sess.createQuery("select 1 from WaterData where StartTime = :time");
-				query.setParameter("time", water.getTimestamp(), TimestampType.INSTANCE);
+				query.setParameter("time", water.getStartTime(), TimestampType.INSTANCE);
 				
 				List list = query.getResultList();
                 if (list.isEmpty()) {

@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.xunwei.collectdata.utils.JacksonFactory;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.hibernate.type.TimestampType;
 import org.redisson.api.RBucket;
 import org.redisson.api.RKeys;
+import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +20,7 @@ import com.xunwei.collectdata.App;
 import com.xunwei.collectdata.utils.RedissonClientFactory;
 
 public class GasData extends AbsDataProcess {
-	private Integer id;
+	private int id;
 	private float Consumption;
 	private float Pressure;
 	private HashMap<String, String> gasData = new HashMap<String, String>();
@@ -29,8 +31,9 @@ public class GasData extends AbsDataProcess {
 		Iterable<String> allKeys = keys.getKeysByPattern("*:*:3:100");
 		
 		for(String item : allKeys) {
-			RBucket<String> rbucket = redissonClient.getBucket(item);
-			gasData.put(item, rbucket.get());
+//			RBucket<String> rbucket = redissonClient.getBucket(item);
+			RList<String> rList = redissonClient.getList(item);
+			gasData.put(item, rList.get(0));
 		}
         return true;
     }
@@ -42,19 +45,24 @@ public class GasData extends AbsDataProcess {
     public Boolean storeData() {
 		boolean result = true;
 		Session sess = App.getSession();
-		ObjectMapper mapper = new ObjectMapper();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		mapper.setDateFormat(simpleDateFormat);
+		ObjectMapper mapper = JacksonFactory.getObjectMapper();
 		
         for (Entry<String, String> me : gasData.entrySet()) {
             try {
             	String value = me.getValue();
             	GasData gas = mapper.readValue(value, GasData.class);
                 //to persist alert.
-				Query query = sess.createQuery("select 1 from GasData where timestamp = :time");
-				query.setParameter("time", gas.getTimestamp(), TimestampType.INSTANCE);
+				Query query = sess.createQuery("select Consumption, Pressure" +
+						" from GasData where StartTime = :time");
+				query.setParameter("time", gas.getStartTime(), TimestampType.INSTANCE);
 				
 				List list = query.getResultList();
+				//only for testing
+//				List<Object[]> list1 = query.list();
+//				for(Object[] row : list1) {
+//					System.out.println( row[0].toString()+ "    @@@@@@@@@@@@@@@@@");
+//					System.out.println( row[1].toString()+ "    @@@@@@@@@@@@@@@@@");
+//				}
                 if (list.isEmpty()) {
                     App.bePersistedObject(gas);
                 }
@@ -74,11 +82,11 @@ public class GasData extends AbsDataProcess {
         return true;
     }
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

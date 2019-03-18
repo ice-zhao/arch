@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.xunwei.collectdata.utils.JacksonFactory;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.hibernate.type.TimestampType;
 import org.redisson.api.RBucket;
 import org.redisson.api.RKeys;
+import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +20,9 @@ import com.xunwei.collectdata.utils.RedissonClientFactory;
 
 public class AmmeterData extends AbsDataProcess {
 	private Integer id;
+	private float Ua;
+	private float Ia;
+	private float ActivePower;
 	private float totalCurrent;
 	private HashMap<String, String> ammeterData = new HashMap<String, String>();
 	
@@ -26,8 +32,9 @@ public class AmmeterData extends AbsDataProcess {
 		Iterable<String> allKeys = keys.getKeysByPattern("*:*:1:100");
 		
 		for(String item : allKeys) {
-			RBucket<String> rbucket = redissonClient.getBucket(item);
-			ammeterData.put(item, rbucket.get());
+//			RBucket<String> rbucket = redissonClient.getBucket(item);
+			RList<String> rList = redissonClient.getList(item);
+			ammeterData.put(item, rList.get(0));
 		}
 		
 		return true;
@@ -41,19 +48,15 @@ public class AmmeterData extends AbsDataProcess {
 	public Boolean storeData() {
 		boolean result = true;
 		Session sess = App.getSession();
-		ObjectMapper mapper = new ObjectMapper();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		mapper.setDateFormat(simpleDateFormat);
+		ObjectMapper mapper = JacksonFactory.getObjectMapper();
 		
         for (Entry<String, String> me : ammeterData.entrySet()) {
             try {
             	String value = me.getValue();
             	AmmeterData ammeter = mapper.readValue(value, AmmeterData.class);
                 //to persist alert.
-				Query query = sess.createQuery("select 1 from AmmeterData where hostID = :host"
-						+ " and devNumber = :number");
-				query.setParameter("host", ammeter.getHostID());
-				query.setParameter("number", ammeter.getDeviceNumber());
+				Query query = sess.createQuery("select 1 from AmmeterData where StartTime = :time");
+				query.setParameter("time", ammeter.getStartTime(), TimestampType.INSTANCE);
 				
 				List list = query.getResultList();
                 if (list.isEmpty()) {
@@ -92,4 +95,27 @@ public class AmmeterData extends AbsDataProcess {
 		this.totalCurrent = totalCurrent;
 	}
 
+	public float getUa() {
+		return Ua;
+	}
+
+	public void setUa(float ua) {
+		Ua = ua;
+	}
+
+	public float getIa() {
+		return Ia;
+	}
+
+	public void setIa(float ia) {
+		Ia = ia;
+	}
+
+	public float getActivePower() {
+		return ActivePower;
+	}
+
+	public void setActivePower(float activePower) {
+		ActivePower = activePower;
+	}
 }

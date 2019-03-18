@@ -12,10 +12,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.hibernate.type.TimestampType;
-import org.redisson.api.RBlockingQueue;
-import org.redisson.api.RBucket;
-import org.redisson.api.RKeys;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -255,10 +252,13 @@ class TopicFactory {
 						JsonNode key = JacksonFactory.findJsonNode(data, "/key");
 						JsonNode value = JacksonFactory.findJsonNode(data,"/value");
 
+						storeListToRedis(key,value);
+
+						//only for test
 						RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
-						RBucket<String> rBucket = redissonClient.getBucket(key.asText());
-						rBucket.set(value.toString());
-						System.out.println(rBucket.get());
+//						RBucket<String> rBucket = redissonClient.getBucket(key.asText());
+//						rBucket.set(value.toString());
+//						System.out.println(rBucket.get());
 
 						RKeys keys = redissonClient.getKeys();
 						Iterable<String> allkeys = keys.getKeys();
@@ -332,7 +332,7 @@ class TopicFactory {
 						JsonNode rootNode = objectMapper.readTree(message.getPayload());
 						JsonNode key = rootNode.at("/key");
 						JsonNode value = rootNode.at("/value");
-						storeBucketToRedis(key,value);
+						storeListToRedis(key,value);
 					}
 				};
 		deviceAlertSubClient.setSubTopic(subTopic);
@@ -352,7 +352,7 @@ class TopicFactory {
 						String data = new String(message.getPayload());
 						JsonNode key = JacksonFactory.findJsonNode(data,"/key");
 						JsonNode value = JacksonFactory.findJsonNode(data,"/value");
-						storeBucketToRedis(key,value);
+						storeListToRedis(key,value);
 					}
 				};
 
@@ -367,6 +367,11 @@ class TopicFactory {
 		rBucket.set(value.toString());
 	}
 
+	private void storeListToRedis(JsonNode key, JsonNode value) {
+		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
+		RList<String> rList = redissonClient.getList(key.asText());
+		rList.add(value.toString());
+	}
 
 
 

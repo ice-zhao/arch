@@ -5,28 +5,13 @@ import java.util.Date;
 import com.xunwei.collectdata.IDataProcess;
 
 public abstract class AbsAlert implements IDataProcess {
-	public int hostID;
-	public int deviceNumber;		//device number
+	public int HostId;
+	public String DevNo;		//device number
 	public int deviceType;
 	public String name;		//device name
-	public Date timestamp;
+	public Date StartTime;
+	public int ParkId;
 	public String info;	//alert info
-	
-	public int getHostID() {
-		return hostID;
-	}
-
-	public void setHostID(int hostID) {
-		this.hostID = hostID;
-	}
-
-	public int getDeviceNumber() {
-		return deviceNumber;
-	}
-
-	public void setDeviceNumber(int deviceNumber) {
-		this.deviceNumber = deviceNumber;
-	}
 
 	public int getDeviceType() {
 		return deviceType;
@@ -42,14 +27,6 @@ public abstract class AbsAlert implements IDataProcess {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public Date getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
 	}
 
 	public String getInfo() {
@@ -70,5 +47,37 @@ public abstract class AbsAlert implements IDataProcess {
 		if(!cleanupData()) return false;
 		
 		return true;
+	}
+
+	public int getHostId() {
+		return HostId;
+	}
+
+	public void setHostId(int hostId) {
+		HostId = hostId;
+	}
+
+	public Date getStartTime() {
+		return StartTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		StartTime = startTime;
+	}
+
+	public int getParkId() {
+		return ParkId;
+	}
+
+	public void setParkId(int parkId) {
+		ParkId = parkId;
+	}
+
+	public String getDevNo() {
+		return DevNo;
+	}
+
+	public void setDevNo(String devNo) {
+		DevNo = devNo;
 	}
 }
