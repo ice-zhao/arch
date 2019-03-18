@@ -36,7 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-
+import org.apache.log4j.*;
 public class App 
 {
 	private static final SessionFactory concreteSessionFactory;
@@ -73,6 +73,10 @@ public class App
 		//start data process thread
 //		Thread t = new DataProcessThread();
 //		t.start();
+//    	Logger log = Logger.getLogger(App.class);
+//    	log.info("-----------------only for test----");
+//    	BasicConfigurator.configure();
+//    	Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 
     	String dcmsJson = "{\n" +
 				"\"hostID\" : \"8\",\n" +
