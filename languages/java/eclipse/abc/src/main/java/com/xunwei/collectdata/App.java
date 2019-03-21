@@ -34,13 +34,21 @@ import java.text.ParseException;
 //import org.hibernate.Transaction;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.*;
+//import org.slf4j.*;
 public class App 
 {
 	private static final SessionFactory concreteSessionFactory;
 	static {
+		BasicConfigurator.configure();
+		Logger.getLogger("org.hibernate").setLevel(Level.ERROR);
+		Logger.getLogger("org.jboss").setLevel(Level.ERROR);
+		Logger.getLogger("com.mchange").setLevel(Level.ERROR);
+		
 		try {
 			concreteSessionFactory = new Configuration()
 					.configure("com/xunwei/collectdata/hibernate.cfg.xml")
@@ -75,22 +83,29 @@ public class App
 //		t.start();
 //    	Logger log = Logger.getLogger(App.class);
 //    	log.info("-----------------only for test----");
-//    	BasicConfigurator.configure();
-//    	Logger.getLogger("org.hibernate").setLevel(Level.OFF);
+//    	Logger.getLogger("org.hibernate").setLevel(Level.DEBUG);
 
     	String dcmsJson = "{\n" +
 				"\"hostID\" : \"8\",\n" +
 //				"\"areaID\" : 9,\n" +
 //				"\"buildingID\" : 10,\n" +
 				"\"remoteServerAddr\" : \"10.0.1.123\",\n" +
-				"\"floor\" : 20,\n" +
+//				"\"floor\" : 20,\n" +
 				"\"serial\" : \"user defined\"\n" +
 				"}";
-    	
     	ObjectMapper mapper = new ObjectMapper();
 		Host host = mapper.readValue(dcmsJson, Host.class);
 		
 		System.out.println(host.getRemoteServerAddr());
+		
+		Map<String, Object> jmap = new HashMap<>();
+		jmap.put("remoteServerAddr", "10.0.1.111");
+		String json = mapper.writeValueAsString(jmap);
+		System.out.println(json);
+		
+		Host newhost = mapper.readValue(json, Host.class);
+		System.out.println(newhost.getRemoteServerAddr());
+		
 /*
     	SysAlert sa = new SysAlert();
     	sa.setDeviceNumber(1);
