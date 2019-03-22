@@ -147,7 +147,7 @@ class TopicFactory {
 				try {
 //					Object test = sess.get(Host.class, host.getHostID());
 					Query query = sess.createQuery("select 1 from Host where hostID = :hostid");
-					query.setParameter("hostid", host.getHostID());
+					query.setParameter("hostid", host.getHostNo());
 					List list = query.getResultList();
 					if(list.isEmpty()) {
 						App.bePersistedObject(host);

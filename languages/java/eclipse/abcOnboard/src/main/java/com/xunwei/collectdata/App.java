@@ -85,6 +85,11 @@ public class App
 //    	log.info("-----------------only for test----");
 //    	Logger.getLogger("org.hibernate").setLevel(Level.DEBUG);
 
+    	Host host1 = Host.getHostInstance();
+    	System.out.println(host1.doSerialize());
+    	System.exit(0);
+    	
+    	
     	String dcmsJson = "{\n" +
 				"\"hostID\" : \"8\",\n" +
 //				"\"areaID\" : 9,\n" +
