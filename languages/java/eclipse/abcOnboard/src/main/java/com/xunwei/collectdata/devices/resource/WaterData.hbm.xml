@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.xunwei.collectdata.devices">
+    <class name="WaterData" table="t_sys_water">
+    	<id name="id" column="ID">
+    		<generator class="increment"/>
+    	</id>
+        <property name="consumption"  column = "Consumption" type="float"></property>
+        <property name="quality"  column = "Quality" type="string"></property>
+        <property name="pressure"  column = "Pressure" type="float"></property>
+        <property name="speed"  column = "Speed" type="float"></property>
+        <property name="timestamp"  column = "StartTime" type="java.util.Date"></property>
+        <property name="areaID"  column = "ParkId" type="int"></property>
+        <property name="buildingID"  column = "BuildingId" type="int"></property>
+        <property name="deviceType"  column = "DevId" type="int"></property>
+    </class>
+</hibernate-mapping>
