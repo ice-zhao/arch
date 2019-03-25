@@ -102,10 +102,10 @@ class TopicFactory {
 
 		try {
 			talkOnRegisterHost();
-			talkOnRegisterDevices();
-			talkOnDeviceDataRead();
-			talkOnDeviceAlert();
-			talkOnDeviceStatus();
+//			talkOnRegisterDevices();
+//			talkOnDeviceDataRead();
+//			talkOnDeviceAlert();
+//			talkOnDeviceStatus();
 			isStartAll = true;
 		} catch(MqttException me) {
 			// Display full details of any exception that occurs
@@ -175,12 +175,50 @@ class TopicFactory {
 					e.printStackTrace();
 				}
 			}
+			
+			public void connectionLost(Throwable cause) {
+				// Called when the connection to the server has been lost.
+				// An application may choose to implement reconnection
+				// logic at this point. This sample simply exits.
+//				try {
+//					this.connect();
+//				} catch (Throwable e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxx lost");
+			}
 		};
 		
-		regHostSubClient.connect();
+		boolean isConn = false;
+//		while(!isConn) 
+		while(!regHostSubClient.isConnect())
+//		for(int i = 0; i<1000; i++)
+		{
+			try {
+				regHostSubClient.connect();
+				isConn = true;
+//				break;
+			} catch (Throwable e) {
+				e.printStackTrace();
+				isConn = false;
+//				regHostSubClient.disconnect();
+			}
+			
+			Thread.sleep(5000);
+			System.out.println("##### is connect:");
+//			i = 0;
+		}
+		
 		regHostSubClient.subscribe(subTopic,qos);
 		
+//    	while(true) {
+//    		Thread.sleep(5000);
+//    		System.out.println("main task sleeping.");
+//    		regHostSubClient.publish("/abc", 2, "testing data".getBytes());
+//    	}
 		
+/*		
 		//only for test ack topic
 		action 	= "subscribe";
 		String subAckTopic = "/control/register/dcms/ack";
@@ -206,7 +244,7 @@ class TopicFactory {
 				"\"floor\" : 20,\n" +
 				"\"serial\" : \"user defined\"\n" +
 				"}";
-		regHostPubClient.publish(pubHostTopic,qos,dcmsJson.getBytes());
+		regHostPubClient.publish(pubHostTopic,qos,dcmsJson.getBytes());*/
 	}
 
 	private void talkOnDeviceDataRead() throws Throwable {

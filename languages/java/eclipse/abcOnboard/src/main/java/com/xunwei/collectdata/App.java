@@ -75,9 +75,13 @@ public class App
     }
 	
     public static void main( String[] args ) throws Throwable {
-//    	TopicFactory topicFactory = TopicFactory.getInstance(args);
-//    	topicFactory.startAllTopics();
+    	TopicFactory topicFactory = TopicFactory.getInstance(args);
+    	topicFactory.startAllTopics();
 
+//    	while(true) {
+//    		Thread.sleep(5000);
+//    		System.out.println("main task sleeping.");
+//    	}
 		//start data process thread
 //		Thread t = new DataProcessThread();
 //		t.start();
@@ -85,6 +89,7 @@ public class App
 //    	log.info("-----------------only for test----");
 //    	Logger.getLogger("org.hibernate").setLevel(Level.DEBUG);
 
+/*    	
     	Host host1 = Host.getHostInstance();
     	System.out.println(host1.doSerialize());
     	System.exit(0);
@@ -109,7 +114,7 @@ public class App
 		System.out.println(json);
 		
 		Host newhost = mapper.readValue(json, Host.class);
-		System.out.println(newhost.getRemoteServerAddr());
+		System.out.println(newhost.getRemoteServerAddr());*/
 		
 /*
     	SysAlert sa = new SysAlert();

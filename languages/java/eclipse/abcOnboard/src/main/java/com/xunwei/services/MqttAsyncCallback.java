@@ -15,7 +15,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 
-public class MqttAsyncCallback implements MqttCallback,Runnable {
+public class MqttAsyncCallback implements MqttCallback,Runnable,IMqttActionListener {
 	private int state = BEGIN;
 	private String topic 		= "";
 	private int qos 			= 2;
@@ -26,9 +26,9 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 	private String pubTopic 	= "Sample/Java/v3";
 	private boolean cleanSession = true;			// Non durable subscriptions
 	boolean ssl = false;
-	private MqttAsyncClient 	client;
+	private MqttAsyncClient 	client = null;
 	private String 				brokerUrl;
-	private boolean 			quietMode = true;
+	private boolean 			quietMode = false;
 	private MqttConnectOptions 	conOpt;
 	private boolean 			clean;
 	Throwable 			ex = null;
@@ -100,6 +100,7 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
     private MqttConnector con = null;
     private Publisher pub = null;
     private Subscriber sub = null;
+    private Disconnector disc = null;
     
     public void connect() throws Throwable {
     	// Use a state machine to decide which step to do next. State change occurs
@@ -111,6 +112,11 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 		waitForStateChange(10000);
     }
     
+    public void disconnect() throws Throwable {
+    	if(null == disc)
+    		disc = new Disconnector();
+    	disc.doDisconnect();
+    }
     /**
      * Publish / send a message to an MQTT server
      * @param topicName the name of the topic to publish to
@@ -171,8 +177,8 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 		// Called when the connection to the server has been lost.
 		// An application may choose to implement reconnection
 		// logic at this point. This sample simply exits.
-		log("Connection to " + brokerUrl + " lost!" + cause);
-		System.exit(1);
+		log("zzzzzzzzzzzzzzzzz  Connection to " + brokerUrl + " lost!" + cause);
+//		System.exit(1);
 	}
 	
 	public void deliveryComplete(IMqttDeliveryToken token) {
@@ -236,8 +242,9 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 		}
 
 		public void doConnect() {
-			if(isConnect)
+			if(client.isConnected())
 				return;
+			
 	    	// Connect to the server
 			// Get a token and setup an asynchronous listener on the token which
 			// will be notified once the connect completes
@@ -245,7 +252,7 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 
 	    	IMqttActionListener conListener = new IMqttActionListener() {
 				public void onSuccess(IMqttToken asyncActionToken) {
-			    	log("Connected");
+			    	log("@@@@@@@@@@@@@@@@@@@Connected");
 			    	state = CONNECTED;
 			    	isConnect = true;
 			    	carryOn();
@@ -255,7 +262,15 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 					ex = exception;
 					state = ERROR;
 					isConnect = false;
-					log ("connect failed" +exception);
+					log ("----------connect failed" +exception);
+//					try {
+//						asyncActionToken.waitForCompletion();
+//					} catch (MqttException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//						System.out.println("---------------------");
+//					}
+					
 					carryOn();
 				}
 
@@ -269,7 +284,11 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 
 	    	try {
 	    		// Connect using a non-blocking connect
-	    		client.connect(conOpt,"Connect sample context", conListener);
+//	    		conOpt.setAutomaticReconnect(true);
+//	    		conOpt.setKeepAliveInterval(0);
+//	    		conOpt.setConnectionTimeout(0);
+	    		IMqttToken conToken = client.connect(conOpt,"Connect sample context", conListener);
+//	    		conToken.waitForCompletion();
 			} catch (MqttException e) {
 				// If though it is a non-blocking connect an exception can be
 				// thrown if validation of parms fails or other checks such
@@ -471,5 +490,29 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 
 	public void setCleanSession(boolean cleanSession) {
 		this.cleanSession = cleanSession;
+	}
+
+	@Override
+	public void onSuccess(IMqttToken asyncActionToken) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+		// TODO Auto-generated method stub
+		try {
+//			client.close();
+			client.connect();
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+//			e.printStackTrace();
+			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyy");
+		}
+		
+	}
+	
+	public boolean isConnect() {
+		return client.isConnected();
 	}
 }
