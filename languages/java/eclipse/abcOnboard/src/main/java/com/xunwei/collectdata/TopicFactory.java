@@ -96,12 +96,19 @@ class TopicFactory {
 			topicFactory = new TopicFactory(args);
 		return topicFactory;
 	}
+	
+	static TopicFactory getInstance() throws Throwable {
+		if(topicFactory == null)
+			throw new Exception("class has not instance!");
+		return topicFactory;
+	}
 
 	void startAllTopics() {
 		if(isStartAll) return;
 
 		try {
-			talkOnRegisterHost();
+			talkOnTopics();
+//			talkOnRegisterHost();
 //			talkOnRegisterDevices();
 //			talkOnDeviceDataRead();
 //			talkOnDeviceAlert();
@@ -121,6 +128,80 @@ class TopicFactory {
 			th.printStackTrace();
 			System.exit(-1);
 		}
+	}
+	
+	private static MqttAsyncCallback talkTopics = null;
+	
+	private void talkOnTopics() throws Throwable {
+		String subTopic = "/*";
+		action 	= "subscribe";
+		
+		clientId = subTopic + " " + action;
+		if(null == talkTopics) {
+			talkTopics = new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
+				public void messageArrived(String topic, MqttMessage message) throws Exception {
+					
+				};
+				
+				public void run() {
+						while(!this.isConnect()) {
+							try {
+								Thread.sleep(5000);
+								this.connect();
+								Thread.sleep(5000);
+								if(!this.isConnect())
+									this.disconnect();
+							} catch (Throwable e) {
+			//					e.printStackTrace();
+							}
+						}
+						
+						try {
+							Thread.sleep(5000);
+							this.subscribe(this.getSubTopic(), qos);
+						} catch (Throwable e) {
+							e.printStackTrace();
+						}
+						
+						while(true) {
+							try {
+								Thread.sleep(5000);
+//								System.out.println("topic "+ this.isConnect() + " connected.");
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+			};
+		
+			talkTopics.setSubTopic(subTopic);
+		
+			Thread t = new Thread(talkTopics);
+			t.start();
+		}
+	}
+	
+	public static MqttAsyncCallback getInstanceOfTalkTopics() {
+		TopicFactory tf = null;
+		try {
+			tf = TopicFactory.getInstance();
+		} catch (Throwable e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			System.exit(-1);
+		}
+		
+		if(null == talkTopics) {
+			try {
+				tf.talkOnTopics();
+			} catch (Throwable e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.exit(-1);
+			}
+		}
+		return talkTopics;
 	}
 	
 	private void talkOnRegisterHost() throws Throwable {
@@ -175,39 +256,18 @@ class TopicFactory {
 					e.printStackTrace();
 				}
 			}
-			
-			public void connectionLost(Throwable cause) {
-				// Called when the connection to the server has been lost.
-				// An application may choose to implement reconnection
-				// logic at this point. This sample simply exits.
-//				try {
-//					this.connect();
-//				} catch (Throwable e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxx lost");
-			}
 		};
 		
-		boolean isConn = false;
-//		while(!isConn) 
 		while(!regHostSubClient.isConnect())
-//		for(int i = 0; i<1000; i++)
 		{
 			try {
 				regHostSubClient.connect();
-				isConn = true;
-//				break;
 			} catch (Throwable e) {
 				e.printStackTrace();
-				isConn = false;
-//				regHostSubClient.disconnect();
 			}
 			
 			Thread.sleep(5000);
-			System.out.println("##### is connect:");
-//			i = 0;
+			System.out.println("##### not connect:");
 		}
 		
 		regHostSubClient.subscribe(subTopic,qos);
