@@ -144,35 +144,40 @@ class TopicFactory {
 				};
 				
 				public void run() {
-						while(!this.isConnect()) {
-							try {
-								Thread.sleep(5000);
-								this.connect();
-								Thread.sleep(5000);
-								if(!this.isConnect())
-									this.disconnect();
-							} catch (Throwable e) {
-			//					e.printStackTrace();
-							}
-						}
-						
+					try {
+						this.connect();
+						Thread.sleep(8000);
+					} catch (Throwable e) {
+					}
+					
+					while(!this.isConnect()) {
 						try {
+							this.disconnect();
 							Thread.sleep(5000);
-							this.subscribe(this.getSubTopic(), qos);
+							this.connect();
+							Thread.sleep(8000);
 						} catch (Throwable e) {
-							e.printStackTrace();
-						}
-						
-						while(true) {
-							try {
-								Thread.sleep(5000);
-//								System.out.println("topic "+ this.isConnect() + " connected.");
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+		//					e.printStackTrace();
 						}
 					}
+					
+					try {
+						Thread.sleep(5000);
+						this.subscribe(this.getSubTopic(), qos);
+					} catch (Throwable e) {
+						e.printStackTrace();
+					}
+					
+					while(true) {
+						try {
+							Thread.sleep(5000);
+//								System.out.println("topic "+ this.isConnect() + " connected.");
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
 			};
 		
 			talkTopics.setSubTopic(subTopic);

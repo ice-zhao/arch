@@ -180,11 +180,11 @@ public class MqttAsyncCallback implements MqttCallback,Runnable,IMqttActionListe
 		log("Connection to " + brokerUrl + " lost!" + cause);
 		while(!this.isConnect()) {
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(8000);
 				this.disconnect();
 				Thread.sleep(5000);
 				this.connect();
-				Thread.sleep(5000);
+				Thread.sleep(8000);
 			} catch (Throwable e) {
 //					e.printStackTrace();
 			}
