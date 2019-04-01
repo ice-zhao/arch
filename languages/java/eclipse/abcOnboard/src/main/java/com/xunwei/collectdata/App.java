@@ -43,6 +43,12 @@ import org.apache.log4j.*;
 public class App 
 {
 	private static final SessionFactory concreteSessionFactory;
+	private static boolean isHostRegistered = false;
+	
+	public static final String topicHostRegister = "/control/register/host";
+	public static final String topicHostAck = "/control/register/host/ack";
+	public static final String topicDevAck = "/control/register/host/device/ack";
+	
 	static {
 		BasicConfigurator.configure();
 		Logger.getLogger("org.hibernate").setLevel(Level.ERROR);
@@ -156,6 +162,14 @@ public class App
 		} finally {
 			closeSession(sess);
 		}
+	}
+
+	public static boolean isHostRegistered() {
+		return isHostRegistered;
+	}
+
+	public static void setHostRegistered(boolean isHostRegistered) {
+		App.isHostRegistered = isHostRegistered;
 	}
 }
 

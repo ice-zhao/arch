@@ -10,12 +10,12 @@ import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xunwei.collectdata.AbsCommonData;
 import com.xunwei.collectdata.AbsDataProcess;
 import com.xunwei.collectdata.App;
 import com.xunwei.collectdata.utils.RedissonClientFactory;
 
-public class AmmeterData extends AbsDataProcess {
-	private Integer id;
+public class AmmeterData extends AbsCommonData {
 	private float totalCurrent;
 	private HashMap<String, String> ammeterData = new HashMap<String, String>();
 	
@@ -49,8 +49,8 @@ public class AmmeterData extends AbsDataProcess {
                 //to persist alert.
 				Query query = sess.createQuery("select 1 from AmmeterData where hostID = :host"
 						+ " and devNumber = :number");
-				query.setParameter("host", ammeter.getHostID());
-				query.setParameter("number", ammeter.getDeviceNumber());
+				query.setParameter("host", ammeter.getHostNo());
+				query.setParameter("number", ammeter.getDevNo());
 				
 				List list = query.getResultList();
                 if (list.isEmpty()) {
@@ -71,14 +71,6 @@ public class AmmeterData extends AbsDataProcess {
 	public Boolean cleanupData() {
 		// TODO Auto-generated method stub
 		return true;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public float getTotalCurrent() {

@@ -2,42 +2,16 @@ package com.xunwei.collectdata.devices;
 
 import java.io.Serializable;
 
-public class Device implements IDevice, Serializable {
-	private Integer hostID;
-	private Integer deviceNumber;
-	private Integer deviceType;
-	private String	name;
+import com.xunwei.collectdata.AbsCommonData;
 
+public class Device extends AbsCommonData {
+	private boolean isRegistered = false;
 
-	public Integer getHostID() {
-		return hostID;
+	public boolean isRegistered() {
+		return isRegistered;
 	}
 
-	public void setHostID(Integer hostID) {
-		this.hostID = hostID;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Integer getDeviceType() {
-		return deviceType;
-	}
-
-	public void setDeviceType(Integer deviceType) {
-		this.deviceType = deviceType;
-	}
-
-	public Integer getDeviceNumber() {
-		return deviceNumber;
-	}
-
-	public void setDeviceNumber(Integer deviceNumber) {
-		this.deviceNumber = deviceNumber;
+	public void setRegistered(boolean isRegistered) {
+		this.isRegistered = isRegistered;
 	}
 }

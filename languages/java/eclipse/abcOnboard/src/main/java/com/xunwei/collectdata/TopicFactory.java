@@ -3,7 +3,9 @@ package com.xunwei.collectdata;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xunwei.collectdata.devices.Device;
+import com.xunwei.collectdata.devices.DeviceRegisterThread;
 import com.xunwei.collectdata.devices.Host;
+import com.xunwei.collectdata.utils.ErrorInfo;
 import com.xunwei.collectdata.utils.JacksonFactory;
 import com.xunwei.collectdata.utils.RedissonClientFactory;
 import com.xunwei.services.MqttAsyncCallback;
@@ -140,6 +142,23 @@ class TopicFactory {
 		if(null == talkTopics) {
 			talkTopics = new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
 				public void messageArrived(String topic, MqttMessage message) throws Exception {
+					//Host ack
+					if(topic.equals(App.topicHostAck)) {
+						String payload = new String(message.getPayload());
+						JsonNode errorNum = JacksonFactory.findJsonNode(payload, ErrorInfo.errNum);
+						if((errorNum != null) && (errorNum.asInt() == ErrorInfo.SUCCESS))
+							App.setHostRegistered(true);
+						return;
+					}
+					
+					//device ack
+					if(topic.equals(App.topicDevAck)) {
+						String payload = new String(message.getPayload());
+						JsonNode errorNum = JacksonFactory.findJsonNode(payload, ErrorInfo.errNum);
+						if((errorNum != null) && (errorNum.asInt() == ErrorInfo.SUCCESS))
+							DeviceRegisterThread.sendAcknowledge();
+						return;
+					}
 					
 				};
 				
@@ -148,6 +167,7 @@ class TopicFactory {
 						this.connect();
 						Thread.sleep(8000);
 					} catch (Throwable e) {
+						;
 					}
 					
 					while(!this.isConnect()) {
@@ -158,6 +178,7 @@ class TopicFactory {
 							Thread.sleep(8000);
 						} catch (Throwable e) {
 		//					e.printStackTrace();
+							;
 						}
 					}
 					
@@ -172,11 +193,20 @@ class TopicFactory {
 						try {
 							Thread.sleep(5000);
 //								System.out.println("topic "+ this.isConnect() + " connected.");
+							//Host is not registered.
+							if(!App.isHostRegistered()) {
+								Host host = Host.getHostInstance();
+								String hostData = host.doSerialize();
+								if(hostData != null)
+									this.publish(App.topicHostRegister, qos, hostData.getBytes());
+							}
+							
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (Throwable e) {
 							e.printStackTrace();
 						}
-					}
+					}	//end of while(true)
 				}
 			};
 		
