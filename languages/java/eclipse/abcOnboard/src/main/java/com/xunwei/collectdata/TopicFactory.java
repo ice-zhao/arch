@@ -22,7 +22,7 @@ import org.redisson.api.RedissonClient;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class TopicFactory {
+public class TopicFactory {
 	// Default settings:
 	private boolean quietMode 	= false;
 	private String action 		= "publish";
@@ -142,9 +142,11 @@ class TopicFactory {
 		if(null == talkTopics) {
 			talkTopics = new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
 				public void messageArrived(String topic, MqttMessage message) throws Exception {
+					String payload;
+					payload = new String(message.getPayload());
+					
 					//Host ack
 					if(topic.equals(App.topicHostAck)) {
-						String payload = new String(message.getPayload());
 						JsonNode errorNum = JacksonFactory.findJsonNode(payload, ErrorInfo.errNum);
 						if((errorNum != null) && (errorNum.asInt() == ErrorInfo.SUCCESS))
 							App.setHostRegistered(true);
@@ -153,11 +155,17 @@ class TopicFactory {
 					
 					//device ack
 					if(topic.equals(App.topicDevAck)) {
-						String payload = new String(message.getPayload());
 						JsonNode errorNum = JacksonFactory.findJsonNode(payload, ErrorInfo.errNum);
-						if((errorNum != null) && (errorNum.asInt() == ErrorInfo.SUCCESS))
-							DeviceRegisterThread.sendAcknowledge();
+						if(errorNum != null)
+							DeviceRegisterThread.sendAcknowledge(errorNum.asInt());
 						return;
+					}
+					
+					//get devNo to read data or parse "*" to get all device data
+					if(topic.equals(App.topicReadData)) {
+						//if *, query all devNo, and put them to thread blocking queue.
+						//otherwise get every single devNo, put them to thread blocking queue.
+						
 					}
 					
 				};

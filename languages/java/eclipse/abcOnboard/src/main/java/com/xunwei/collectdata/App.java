@@ -47,7 +47,9 @@ public class App
 	
 	public static final String topicHostRegister = "/control/register/host";
 	public static final String topicHostAck = "/control/register/host/ack";
+	public static final String topicDevRegister = "/control/register/host/device";
 	public static final String topicDevAck = "/control/register/host/device/ack";
+	public static final String topicReadData = "/control/device/data/read";
 	
 	static {
 		BasicConfigurator.configure();
