@@ -55,8 +55,8 @@ public class App
 		t.start();
 
 		//start alert process thread
-//		Thread alert = new AlertProcessThread();
-//		alert.start();
+		Thread alert = new AlertProcessThread();
+		alert.start();
 
 		//produce Testing data
 		TestData testData = new TestData();

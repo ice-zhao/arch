@@ -8,7 +8,7 @@
       "password":null,
       "subscriptionsPerConnection":5,
       "clientName":null,
-      "address": "redis://192.168.100.111:6379",
+      "address": "redis://192.168.100.110:6379",
       "subscriptionConnectionMinimumIdleSize":1,
       "subscriptionConnectionPoolSize":50,
       "connectionMinimumIdleSize":32,
