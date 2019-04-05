@@ -15,12 +15,18 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 //import org.hibernate.Transaction;
-
+import org.apache.log4j.*;
 
 public class App 
 {
 	private static final SessionFactory concreteSessionFactory;
 	static {
+		BasicConfigurator.configure();
+		Logger.getLogger("org.hibernate").setLevel(Level.ERROR);
+		Logger.getLogger("org.jboss").setLevel(Level.ERROR);
+		Logger.getLogger("com.mchange").setLevel(Level.ERROR);
+		Logger.getLogger("org.redisson").setLevel(Level.ERROR);
+
 		try {
 			concreteSessionFactory = new Configuration()
 					.configure("hibernate.cfg.xml")
