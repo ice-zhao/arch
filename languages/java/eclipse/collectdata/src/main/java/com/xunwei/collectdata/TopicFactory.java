@@ -14,6 +14,8 @@ import org.hibernate.query.Query;
 import org.hibernate.type.TimestampType;
 import org.redisson.api.*;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -121,8 +123,8 @@ class TopicFactory {
 	}
 	
 	private void talkOnRegisterHost() throws Throwable {
-		String subTopic = "/control/register/dcms";
-		pubTopic = "/control/register/dcms/ack";
+		String subTopic = "/control/register/host";
+		pubTopic = "/control/register/host/ack";
 		action 	= "subscribe";
 
 		clientId = subTopic + " " + action;
@@ -130,7 +132,7 @@ class TopicFactory {
 		MqttAsyncCallback regHostSubClient = 
 				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
 			public void messageArrived(String topic, MqttMessage message) throws Exception {
-//				super.messageArrived(topic, message);
+				super.messageArrived(topic, message);
 
 				//parse received JSON data.
 				String receivedData = new String(message.getPayload());
@@ -143,8 +145,8 @@ class TopicFactory {
 				
 				try {
 //					Object test = sess.get(Host.class, host.getHostID());
-					Query query = sess.createQuery("select 1 from Host where hostID = :hostid");
-					query.setParameter("hostid", host.getHostID());
+					Query query = sess.createQuery("select 1 from Host where hostNo = :hostid");
+					query.setParameter("hostid", host.getHostNo());
 					List list = query.getResultList();
 					if(list.isEmpty()) {
 						App.bePersistedObject(host);
@@ -158,15 +160,15 @@ class TopicFactory {
 				}
 
 				String jsonData = "{\n" +
-								"\"ErrNumber\":0,\n" +
-								"\"Description\":\"Host registers successfully.\"\n" +
+								"\"errNumber\":0,\n" +
+								"\"description\":\"Host registers successfully.\"\n" +
 								"}";
 				if(!result) jsonData = "{\n" +
-								"\"ErrNumber\":-1,\n" +
-								"\"Description\":\"Host has been registered.\"\n" +
+								"\"errNumber\":0,\n" +
+								"\"description\":\"Host has been registered.\"\n" +
 								"}";
 				try {
-					super.publish(pubTopic,qos,jsonData.getBytes());
+					super.publish(this.getPubTopic(),qos,jsonData.getBytes());
 				} catch (Throwable e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -176,34 +178,35 @@ class TopicFactory {
 		
 		regHostSubClient.connect();
 		regHostSubClient.subscribe(subTopic,qos);
+		regHostSubClient.setPubTopic(pubTopic);
 		
 		
 		//only for test ack topic
-		action 	= "subscribe";
-		String subAckTopic = "/control/register/dcms/ack";
-		clientId = subAckTopic + " " + action;
-		MqttAsyncCallback regHostSubAckClient = 
-				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
-		regHostSubAckClient.connect();
-		regHostSubAckClient.subscribe(subAckTopic, qos);
+//		action 	= "subscribe";
+//		String subAckTopic = "/control/register/dcms/ack";
+//		clientId = subAckTopic + " " + action;
+//		MqttAsyncCallback regHostSubAckClient =
+//				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
+//		regHostSubAckClient.connect();
+//		regHostSubAckClient.subscribe(subAckTopic, qos);
 		
 		//Only for test register dcms topic.
-		action 	= "publish";
-		String pubHostTopic = "/control/register/dcms";
+/*		action 	= "publish";
+		String pubHostTopic = "/control/register/host";
 		clientId = pubHostTopic + " " + action;
 	    // Create an instance of the publish client wrapper
 		MqttAsyncCallback regHostPubClient = 
 				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password);
 		regHostPubClient.connect();
 		String dcmsJson = "{\n" +
-				"\"hostID\" : \"8\",\n" +
+				"\"hostNo\" : \"dev_888\",\n" +
 //				"\"areaID\" : 9,\n" +
 //				"\"buildingID\" : 10,\n" +
 				"\"remoteServerAddr\" : \"10.0.1.123\",\n" +
 				"\"floor\" : 20,\n" +
 				"\"serial\" : \"user defined\"\n" +
 				"}";
-		regHostPubClient.publish(pubHostTopic,qos,dcmsJson.getBytes());
+		regHostPubClient.publish(pubHostTopic,qos,dcmsJson.getBytes());*/
 	}
 
 	private void talkOnDeviceDataRead() throws Throwable {
@@ -223,6 +226,7 @@ class TopicFactory {
 						while(true) {
 							try {
 								jsonData = queue.poll(0, TimeUnit.DAYS);        //infinitely wait
+//								System.out.println("##############" + jsonData);
 								this.publish(this.getPubTopic(), qos, jsonData.getBytes());
 							} catch (Throwable throwable) {
 								throwable.printStackTrace();
@@ -270,44 +274,69 @@ class TopicFactory {
 		deviceDataReadSubClient.setSubTopic(subTopic);
 		deviceDataReadSubClient.connect();
 		deviceDataReadSubClient.subscribe(subTopic,qos);
+
+		//only for test redisson blocking queue
+		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
+		RBlockingQueue<String> rBlockingQueue = redissonClient.getBlockingQueue("webRequestQueue");
+		String queueData = "{\n" +
+				"\"hostNo\" : \"dev_88\",\n" +
+				"\"deviceType\" : [\"dev_1\",\"test_2\"]\n" +
+				"}";
+		rBlockingQueue.add(queueData);
 	}
 
 	private void talkOnRegisterDevices() throws Throwable {
-		//subscribe topic /control/register/dcms/device to register device in mysql
-		String subTopic = "/control/register/dcms/device";
-		pubTopic = "/control/register/dcms/device/ack";
+		//subscribe topic /control/register/host/device to register device in mysql
+		String subTopic = "/control/register/host/device";
+		pubTopic = "/control/register/host/device/ack";
 		action = "subscribe";
 
 		//create subscribe client
 		clientId = subTopic + " " + action;
 		MqttAsyncCallback registerDeviceSubClient =
 				new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
+					DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 					public void messageArrived(String topic, MqttMessage message) throws Exception {
 						super.messageArrived(topic, message);
 						//store JSON data in redis
-						ObjectMapper mapper = new ObjectMapper();
-						Device device = mapper.readValue(message.getPayload(), Device.class);
+						ObjectMapper mapper = JacksonFactory.getObjectMapper();
+						mapper.setDateFormat(sdf);
+
+						Device device = null;
+						try {
+							device = mapper.readValue(message.getPayload(), Device.class);
+						}catch (Exception e) {
+							e.printStackTrace();
+							return;
+						}
 
 						//To persist data
 						boolean result = true;
+						Session session = App.getSession();
+
 						try {
-							App.bePersistedObject(device);
+							//TODO: add hostNo as the second condition.
+							Query query = session.createQuery("select 1 from Device where devNo=:devno");
+							query.setParameter("devno", device.getDevNo());
+							List list = query.getResultList();
+							if(list.isEmpty())
+								App.bePersistedObject(device);
 						} catch (Throwable throwable) {
 							throwable.printStackTrace();
 							result = false;
 						}
 
 						String reply = "{\n" +
-								"\"ErrNumber\":0,\n" +
-								"\"Description\":\"Device registers successfully.\"\n" +
+								"\"errorNumber\":0,\n" +
+								"\"description\":\"Device registers successfully.\"\n" +
 								"}";
 						if(!result) reply = "{\n" +
-								"\"ErrNumber\":-1,\n" +
-								"\"Description\":\"Device has been registered.\"\n" +
+								"\"errorNumber\":0,\n" +
+								"\"description\":\"Device has been registered.\"\n" +
 								"}";
 
 						try {
-							super.publish(pubTopic,qos,reply.getBytes());
+							super.publish(this.getPubTopic(),qos,reply.getBytes());
 						} catch (Throwable e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -315,6 +344,7 @@ class TopicFactory {
 					}
 				};
 		registerDeviceSubClient.setSubTopic(subTopic);
+		registerDeviceSubClient.setPubTopic(pubTopic);
 		registerDeviceSubClient.connect();
 		registerDeviceSubClient.subscribe(subTopic,qos);
 	}

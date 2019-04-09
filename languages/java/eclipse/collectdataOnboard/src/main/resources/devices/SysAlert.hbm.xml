@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.xunwei.collectdata.alert">
+    <class name="SysAlert" table="t_sys_alarm">
+    	<id name="id" column="ID">
+    		<generator class="increment"/>
+    	</id>
+        <property name="DevId"  column = "DevId" type="int"></property>
+        <property name="alarmName"  column = "AlarmName" type="string"></property>
+        <property name="AlarmSite"  column = "AlarmSite" type="string"></property>
+        <property name="StartTime"  column = "StartTime" type="java.util.Date"></property>
+        <property name="endTime"  column = "EndTime" type="java.util.Date"></property>
+        <property name="alertLevel"  column = "AlarmLevel" type="int"></property>
+        <property name="HostId"  column = "HostId" type="int"></property>
+        <!--<property name="ParkId"  column = "ParkId" type="int"></property>-->
+        <property name="devNo"  column = "DevNo" type="string"></property>
+    </class>
+</hibernate-mapping>

@@ -7,10 +7,10 @@
         <id name="id" column="ID">
             <generator class="increment"/>
         </id>
-        <property name="hostID" column= "HostNo" type="string"></property>
+        <property name="hostNo" column= "HostNo" type="string"></property>
         <property name="RemoteServerAddr" column= "RemoteServerAddr" type="string"></property>
         <property name="buildingID" column= "BuId" type="integer"></property>
-        <property name="areaID" column="ParkId" type="integer"></property>
+        <property name="parkId" column="ParkId" type="integer"></property>
         <property name="floor" column= "Floor" type="integer"></property>
     </class>
 </hibernate-mapping>

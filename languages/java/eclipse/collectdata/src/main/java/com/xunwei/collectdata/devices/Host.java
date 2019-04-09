@@ -2,29 +2,13 @@ package com.xunwei.collectdata.devices;
 
 public class Host implements IDevice {
     private Integer id;
-    private String hostID;
-    private Integer areaID;
+    private String hostNo;
+    private Integer parkId;
     private Integer buildingID;
     private String name;
     private String serial;
     private String RemoteServerAddr;
     private Integer floor;
-
-    public String getHostID() {
-        return hostID;
-    }
-
-    public void setHostID(String hostID) {
-        this.hostID = hostID;
-    }
-
-    public Integer getAreaID() {
-        return areaID;
-    }
-
-    public void setAreaID(Integer areaID) {
-        this.areaID = areaID;
-    }
 
     public Integer getBuildingID() {
         return buildingID;
@@ -72,5 +56,21 @@ public class Host implements IDevice {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getHostNo() {
+        return hostNo;
+    }
+
+    public void setHostNo(String hostNo) {
+        this.hostNo = hostNo;
+    }
+
+    public Integer getParkId() {
+        return parkId;
+    }
+
+    public void setParkId(Integer parkId) {
+        this.parkId = parkId;
     }
 }
