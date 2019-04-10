@@ -6,3 +6,5 @@ target/classes/
 target/test-classes/*
 .idea/workspace.xml
 out/*
+.svn/*
+*/*/*.db

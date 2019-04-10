@@ -14,8 +14,8 @@
       <property name = "hibernate.connection.driver_class">org.sqlite.JDBC</property>
       <property name="hibernate.jdbc.time_zone">UTC</property>
       <!-- Assume xunwei is the database name -->
-      <property name = "hibernate.connection.url">jdbc:sqlite:F:\\Projects\\arch\\languages\\java\\eclipse\\collectdataOnboard\\dhCfg.db</property>
-      <!--<property name = "hibernate.connection.url">jdbc:sqlite:/home/gxy/core/DataBase/dhCfg.db</property>-->
+      <property name = "hibernate.connection.url">jdbc:sqlite:F:\\Projects\\arch\\languages\\java\\eclipse\\collectdataOnboard\\dhData.db</property>
+      <!--<property name = "hibernate.connection.url">jdbc:sqlite:/home/gxy/core/DataBase/dhData.db</property>-->
       <!--<property name = "hibernate.connection.username"></property>-->
       <!--<property name = "hibernate.connection.password"></property>-->
       <!-- database connection pool -->
@@ -37,12 +37,12 @@
 <!-- 	  <mapping class="com.xuwei.abc.devices.News"/> -->
 
       <!-- List of XML mapping files -->
-      <mapping resource = "devices/Device.hbm.xml"/>
-      <mapping resource = "devices/Host.hbm.xml"/>
-      <mapping resource = "devices/SysAlert.hbm.xml"/>
-      <mapping resource = "devices/WaterData.hbm.xml"/>
-      <mapping resource = "devices/GasData.hbm.xml"/>
-      <mapping resource = "devices/AmmeterData.hbm.xml"/>
+      <!--<mapping resource = "devices/Device.hbm.xml"/>-->
+      <!--<mapping resource = "devices/Host.hbm.xml"/>-->
+      <!--<mapping resource = "devices/SysAlert.hbm.xml"/>-->
+      <!--<mapping resource = "devices/WaterData.hbm.xml"/>-->
+      <!--<mapping resource = "devices/GasData.hbm.xml"/>-->
+      <!--<mapping resource = "devices/AmmeterData.hbm.xml"/>-->
 
    </session-factory>
 <!--

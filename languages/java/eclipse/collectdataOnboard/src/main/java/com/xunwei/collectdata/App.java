@@ -21,6 +21,7 @@ import org.apache.log4j.*;
 public class App 
 {
 	private static final SessionFactory concreteSessionFactory;
+	private static final SessionFactory dataSessionFactory;
 	private static boolean isHostRegistered = false;
 	
 	public static final String topicHostRegister = "/control/register/host";
@@ -40,6 +41,9 @@ public class App
 			concreteSessionFactory = new Configuration()
 					.configure("hibernate.cfg.xml")
 					.buildSessionFactory();
+			dataSessionFactory = new Configuration()
+					.configure("hibernate.data.xml")
+					.buildSessionFactory();
 		} catch (Throwable ex) {
 			throw new ExceptionInInitializerError(ex);
 		}
@@ -47,6 +51,10 @@ public class App
 
 	public static Session getSession() throws HibernateException {
 		return concreteSessionFactory.openSession();
+	}
+
+	public static Session getDataSession() throws HibernateException {
+		return dataSessionFactory.openSession();
 	}
 	
     static void closeSession(Session session){
@@ -65,6 +73,12 @@ public class App
         	concreteSessionFactory.close();
         }
     }
+
+	public static void closeDataSessionFactory(){
+		if(dataSessionFactory != null){
+			dataSessionFactory.close();
+		}
+	}
 	
     public static void main( String[] args ) {
     	TopicFactory topicFactory = TopicFactory.getInstance(args);

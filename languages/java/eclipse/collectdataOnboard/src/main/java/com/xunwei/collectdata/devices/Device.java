@@ -43,17 +43,20 @@ public class Device extends AbsCommonData {
 //        Query query = session.createQuery("select name from Device where devNo='dev_88'");
 //        List list = query.getResultList();
 //        System.out.println("$$$$$$$$$$$$$$$$$  "+ list.get(0));
-		jmap.put("name", "电表");
-		jmap.put("devNo", "dev_88");
-		jmap.put("deviceType",11);
-		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		jmap.put("name", this.getName());
+		jmap.put("devNo", this.getDevNo());
+		jmap.put("deviceType",this.getDeviceType());
+		jmap.put("startTime", this.getStartTime());
+
+		//only for test data field.
+/*		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date date = null;
 		try {
 			date = sdf.parse("2019-04-05 22:17:18");
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		jmap.put("startTime", date);
+		jmap.put("startTime", date);*/
 
 		ObjectMapper objectMapper = JacksonFactory.getObjectMapper();
 		try {
