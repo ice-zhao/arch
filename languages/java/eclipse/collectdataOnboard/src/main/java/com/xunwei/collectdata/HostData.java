@@ -1,6 +1,8 @@
 package com.xunwei.collectdata;
 
-public class HostData extends AbsCommonData {
+import java.io.Serializable;
+
+public class HostData extends AbsCommonData implements Serializable {
     private Integer value;
 
     public Integer getValue() {

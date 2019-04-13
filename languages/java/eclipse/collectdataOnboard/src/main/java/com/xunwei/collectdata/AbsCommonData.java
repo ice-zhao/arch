@@ -1,7 +1,17 @@
 package com.xunwei.collectdata;
 
 //import javax.persistence.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xunwei.collectdata.utils.JacksonFactory;
+import com.xunwei.services.MqttAsyncCallback;
+import org.hibernate.Query;
+import org.hibernate.Session;
+
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 //@Entity
 public abstract class AbsCommonData implements ICommon{
@@ -24,12 +34,86 @@ public abstract class AbsCommonData implements ICommon{
 	public int buildingId;
 	public int alarmLevel;
 	public String alarmName;
-	
-	
-	
-	
+
+	public Integer devId;
+	public Integer fieldId;
+	public Integer entityId;
+	public String dataTable="t_data";
+
+	public List<HostData> dataList = null;
+	public List<Entity> listEntity = null;
+	public HashMap<String, Object> jsonMap = new HashMap<String, Object>();
+	public HashMap<String, Object> jsonRes = new HashMap<String, Object>();
+	public String jsonData = null;
+	public Entity entity = null;
+
+	public Integer getDevId() {
+		return devId;
+	}
+
+	public void setDevId(Integer devId) {
+		this.devId = devId;
+	}
+
+	public Integer getFieldId() {
+		return fieldId;
+	}
+
+	public void setFieldId(Integer fieldId) {
+		this.fieldId = fieldId;
+	}
+
+	public Integer getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(Integer entityId) {
+		this.entityId = entityId;
+	}
+
+	public String getDataTable(Integer month) {
+//		Calendar cale = null;
+//		cale = Calendar.getInstance();
+//		Integer month = cale.get(Calendar.MONTH) + 1;
+		return dataTable+month;
+	}
+
 	public Boolean readData() {
-		// TODO Auto-generated method stub
+		Session session = App.getDataSession();
+		Query query1;
+		Integer entityId;
+		Integer month;
+
+		query1 = session.createQuery("from Entity where devId = :dev_id and " +
+				"timestamp = (select max(timestamp) from Entity where devId = :dev_id)");
+		query1.setParameter("dev_id", getDevId());
+		listEntity = query1.list();
+		System.out.println("dddddddddddddddddddd " + listEntity.size() + "      " + getDevId());
+		if(listEntity == null) {
+			System.out.println("AmmeterData: listEntity is null.");
+			return false;
+		}
+
+		entity = listEntity.get(0);
+		entityId = listEntity.get(0).getId();
+		month = listEntity.get(0).getMonth();
+		if(entityId == null || month == null || entity == null) {
+			System.out.println("AmmeterData: entityId or month or entity is null.");
+			return false;
+		}
+
+//		System.out.println("######################### "+ entityId);
+
+		query1 = session.createSQLQuery("select Value,FieldId,EntityId from " + getDataTable(month) +
+				" where EntityId = " + entityId).
+				addEntity(HostData.class);
+		dataList = query1.list();
+		if(dataList == null) {
+			System.out.println("AmmeterData: list1 is null.");
+			return false;
+		}
+
+//		System.out.println("######################### "+ dataList.get(0).getValue());
 		return true;
 	}
 	
@@ -39,8 +123,22 @@ public abstract class AbsCommonData implements ICommon{
 	}
 	
 	public Boolean storeData() {
-		// TODO Auto-generated method stub
-		return true;
+		Boolean result = false;
+		if(jsonRes != null) {
+			ObjectMapper objectMapper = JacksonFactory.getObjectMapper();
+			try {
+				jsonData = objectMapper.writeValueAsString(jsonRes);
+
+				MqttAsyncCallback mqttAsyncCallback = TopicFactory.getInstanceOfTalkTopics();
+				mqttAsyncCallback.publish(App.topicDevReplyData, 2, jsonData.getBytes("UTF-8"));
+				result = true;
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			} catch (Throwable throwable) {
+				throwable.printStackTrace();
+			}
+		}
+		return result;
 	}
 	
 	public Boolean cleanupData() {

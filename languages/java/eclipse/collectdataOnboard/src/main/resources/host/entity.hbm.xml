@@ -2,16 +2,12 @@
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping package="com.xunwei.collectdata.devices">
-    <class name="Device" table="t_device">
-        <!--<composite-id class="Device">-->
-            <!--<key-property name="hostID" type="integer"></key-property>-->
-            <!--<key-property name="deviceNumber" type="integer"></key-property>-->
-        <!--</composite-id>-->
+<hibernate-mapping package="com.xunwei.collectdata">
+    <class name="Entity" table="t_entity">
         <id name="id"  column= "ID" type="integer"></id>
-        <property name="devNo"  column= "DevCode" type="string"></property>
-        <property name="name"  column="DevName" type="string"></property>
-        <property name="deviceType"  column="DevTypeId" type="integer"></property>
-        <property name="startTime"  column="StartTime" type="java.util.Date"></property>
+        <property name="devId"  column= "DevId" type="integer"></property>
+        <property name="timestamp"  column="Time" type="java.util.Date"></property>
+        <property name="month"  column="Month" type="integer"></property>
+        <property name="schemaId"  column="SchemaId" type="integer"></property>
     </class>
 </hibernate-mapping>

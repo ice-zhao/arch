@@ -24,6 +24,7 @@ public class TopicFactory {
 	private String action 		= "publish";
 	private int qos 			= 2;
 	private String broker 		= "192.168.1.111";//"LocalHost";//"m2m.eclipse.org";
+//	private String broker 		= "LocalHost";
 	private int port 			= 1883;
 	private String clientId 	= null;
 	private String pubTopic 	= "Sample/Java/v3";
@@ -167,18 +168,19 @@ public class TopicFactory {
 					if(topic.equals(App.topicReadData)) {
 						//TODO: 1. check hostNo if it equals the current host Number.
 						JsonNode hostNum = JacksonFactory.findJsonNode(payload, "/hostNo");
-						System.out.println(hostNum.toString());
+//						System.out.println(hostNum.toString());
 						//2. if *, query all devNo, and put them to thread blocking queue.
 						//otherwise get every single devNo, put them to thread blocking queue.
-						JsonNode array = JacksonFactory.findJsonNode(payload, "/deviceType");
+						JsonNode array = JacksonFactory.findJsonNode(payload, "/devNo");
+						System.out.println(array.size());
 						int i;
 						for(i = 0; i < array.size(); i++) {
 							DataProcessThread.queueAdd(array.get(i).toString());
 						}
 					}
 					
-				};
-				
+				}
+
 				public void run() {
 					try {
 						this.connect();
@@ -201,7 +203,8 @@ public class TopicFactory {
 					
 					try {
 						Thread.sleep(5000);
-						this.subscribe(this.getSubTopic(), qos);
+						if(isConnect())
+							this.subscribe(this.getSubTopic(), qos);
 					} catch (Throwable e) {
 						e.printStackTrace();
 					}

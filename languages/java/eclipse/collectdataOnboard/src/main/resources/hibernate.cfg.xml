@@ -38,11 +38,11 @@
 
       <!-- List of XML mapping files -->
       <mapping resource = "devices/Device.hbm.xml"/>
-      <mapping resource = "devices/Host.hbm.xml"/>
-      <mapping resource = "devices/SysAlert.hbm.xml"/>
-      <mapping resource = "devices/WaterData.hbm.xml"/>
-      <mapping resource = "devices/GasData.hbm.xml"/>
-      <mapping resource = "devices/AmmeterData.hbm.xml"/>
+      <!--<mapping resource = "devices/Host.hbm.xml"/>-->
+      <!--<mapping resource = "devices/SysAlert.hbm.xml"/>-->
+      <!--<mapping resource = "devices/WaterData.hbm.xml"/>-->
+      <!--<mapping resource = "devices/GasData.hbm.xml"/>-->
+      <!--<mapping resource = "devices/AmmeterData.hbm.xml"/>-->
 
    </session-factory>
 <!--

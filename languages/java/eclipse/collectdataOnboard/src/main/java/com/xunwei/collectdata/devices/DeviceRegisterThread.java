@@ -46,7 +46,7 @@ public class DeviceRegisterThread extends Thread implements ICommon {
 		Session session = App.getSession();
 		@SuppressWarnings("unchecked")
 		List<Device> list = (List<Device>)session.createQuery("from Device").list();
-		System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  "+ list.size());
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  "+ list.size());
 		for(Device item : list) {
 			if(!devices.containsKey(item.getDevNo()))
 				devices.put(item.getDevNo(), item);

@@ -1,23 +1,12 @@
 package com.xunwei.collectdata.devices;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xunwei.collectdata.AbsCommonData;
-import com.xunwei.collectdata.App;
 import com.xunwei.collectdata.utils.JacksonFactory;
-import jodd.datetime.DateTimeStamp;
-import org.hibernate.Session;
-import org.hibernate.annotations.Entity;
-import org.hibernate.annotations.Table;
+
+import java.util.HashMap;
+import java.util.Map;
 
 //import javax.persistence.Entity;
 //import javax.persistence.Query;
@@ -39,11 +28,9 @@ public class Device extends AbsCommonData {
 	}
 
 	public String doSerialize() {
-//        Session session = App.getSession();
-//        Query query = session.createQuery("select name from Device where devNo='dev_88'");
-//        List list = query.getResultList();
-//        System.out.println("$$$$$$$$$$$$$$$$$  "+ list.get(0));
+		Host host = Host.getHostInstance();
 		jmap.put("name", this.getName());
+		jmap.put("hostNo", host.getHostNo());
 		jmap.put("devNo", this.getDevNo());
 		jmap.put("deviceType",this.getDeviceType());
 		jmap.put("startTime", this.getStartTime());

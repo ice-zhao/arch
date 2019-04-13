@@ -1,6 +1,9 @@
 package com.xunwei.collectdata;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xunwei.collectdata.alert.AlertProcessThread;
 import com.xunwei.collectdata.devices.DeviceRegisterThread;
+import com.xunwei.collectdata.utils.JacksonFactory;
 import com.xunwei.collectdata.utils.TestData;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
@@ -18,6 +21,8 @@ import org.hibernate.SessionFactory;
 //import org.hibernate.Transaction;
 import org.apache.log4j.*;
 
+import java.util.HashMap;
+
 public class App 
 {
 	private static final SessionFactory concreteSessionFactory;
@@ -29,6 +34,7 @@ public class App
 	public static final String topicDevRegister = "/control/register/host/device";
 	public static final String topicDevAck = "/control/register/host/device/ack";
 	public static final String topicReadData = "/control/device/data/read";
+	public static final String topicDevReplyData = "/devices/reply/data";
 	
 	static {
 		BasicConfigurator.configure();
@@ -81,7 +87,7 @@ public class App
 	}
 	
     public static void main( String[] args ) {
-    	TopicFactory topicFactory = TopicFactory.getInstance(args);
+		TopicFactory topicFactory = TopicFactory.getInstance(args);
     	topicFactory.startAllTopics();
 
     	//periodic register device to cloud
@@ -188,3 +194,19 @@ sess.save(news1);*/
 //			System.out.println(key);
 //
 //        redissonClient.shutdown();
+
+
+//	HashMap<String, Object> hashMap = new HashMap<String, Object>();
+//	HashMap<String, Object> hashMapValue = new HashMap<String, Object>();
+//		hashMap.put("key","1234");
+//				hashMapValue.put("time","2019-01-12");
+//				hashMap.put("value",hashMapValue);
+//				ObjectMapper objectMapper = JacksonFactory.getObjectMapper();
+//				String json1=null;
+//				try {
+//				json1 = objectMapper.writeValueAsString(hashMap);
+//				} catch (JsonProcessingException e) {
+//				e.printStackTrace();
+//				}
+//
+//				System.out.println(json1);

@@ -37,22 +37,7 @@
 <!-- 	  <mapping class="com.xuwei.abc.devices.News"/> -->
 
       <!-- List of XML mapping files -->
-      <!--<mapping resource = "devices/Device.hbm.xml"/>-->
-      <!--<mapping resource = "devices/Host.hbm.xml"/>-->
-      <!--<mapping resource = "devices/SysAlert.hbm.xml"/>-->
-      <!--<mapping resource = "devices/WaterData.hbm.xml"/>-->
-      <!--<mapping resource = "devices/GasData.hbm.xml"/>-->
-      <!--<mapping resource = "devices/AmmeterData.hbm.xml"/>-->
-
+      <mapping resource = "host/entity.hbm.xml"/>
+      <mapping resource = "host/data.hbm.xml"/>
    </session-factory>
-<!--
-	<session-factory name="foo">
-		<property name="show_sql">true</property>
-		<mapping resource="org/hibernate/test/legacy/Simple.hbm.xml"/>
-		<class-cache
-			class="org.hibernate.test.legacy.Simple"
-			region="Simple"
-			usage="read-write"/>
-	</session-factory>
-	-->
 </hibernate-configuration>

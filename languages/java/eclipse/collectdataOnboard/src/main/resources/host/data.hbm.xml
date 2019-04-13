@@ -2,11 +2,13 @@
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping package="com.xunwei.collectdata.devices">
-    <class name="com.xunwei.collectdata.Entity" table="t_entity">
-        <id name="id"  column= "ID" type="integer"></id>
-        <property name="devId"  column= "DevId" type="string"></property>
-        <property name="timestamp"  column="Time" type="java.util.Date"></property>
-        <property name="schemaId"  column="SchemaId" type="integer"></property>
+<hibernate-mapping package="com.xunwei.collectdata">
+    <class name="HostData" table="t_data2">
+        <composite-id>
+            <key-property name="value"  column= "Value" type="integer"></key-property>
+            <key-property name="fieldId"  column="FieldId" type="integer"></key-property>
+            <key-property name="entityId"  column="EntityId" type="integer"></key-property>
+        </composite-id>
     </class>
 </hibernate-mapping>
+
