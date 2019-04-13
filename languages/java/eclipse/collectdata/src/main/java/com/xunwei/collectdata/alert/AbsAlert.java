@@ -7,18 +7,18 @@ import com.xunwei.collectdata.IDataProcess;
 public abstract class AbsAlert implements IDataProcess {
 	public int HostId;
 	public String DevNo;		//device number
-	public int deviceType;
+	public int devTypeId;
 	public String name;		//device name
 	public Date StartTime;
 	public int ParkId;
 	public String info;	//alert info
 
-	public int getDeviceType() {
-		return deviceType;
+	public int getDevTypeId() {
+		return devTypeId;
 	}
 
-	public void setDeviceType(int deviceType) {
-		this.deviceType = deviceType;
+	public void setDevTypeId(int devTypeId) {
+		this.devTypeId = devTypeId;
 	}
 
 	public String getName() {

@@ -280,7 +280,7 @@ class TopicFactory {
 		RBlockingQueue<String> rBlockingQueue = redissonClient.getBlockingQueue("webRequestQueue");
 		String queueData = "{\n" +
 				"\"hostNo\" : \"dev_88\",\n" +
-				"\"deviceType\" : [\"dev_1\",\"test_2\"]\n" +
+				"\"devNo\" : [\"AMT_C\",\"AMT_B\",\"TH_1\"]\n" +
 				"}";
 		rBlockingQueue.add(queueData);
 	}
@@ -401,6 +401,7 @@ class TopicFactory {
 		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
 		RList<String> rList = redissonClient.getList(key.asText());
 		rList.add(value.toString());
+		rList.expire(10, TimeUnit.MINUTES);
 	}
 
 

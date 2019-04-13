@@ -9,11 +9,11 @@
     	</id>
         <property name="Consumption"  column = "Consumption" type="java.lang.Float"></property>
         <property name="Pressure"  column = "Pressure" type="java.lang.Float"></property>
-        <property name="StartTime"  column = "StartTime" type="java.util.Date"></property>
+        <property name="timestamp"  column = "StartTime" type="java.util.Date"></property>
         <!--<property name="ParkId"  column = "ParkId" type="int"></property>-->
         <!--<property name="BuildingId"  column = "BuildingId" type="int"></property>-->
-        <property name="DevId"  column = "DevId" type="int"></property>
-        <property name="HostId"  column = "HostId" type="int"></property>
+        <!--<property name="DevId"  column = "DevId" type="int"></property>-->
+        <!--<property name="HostId"  column = "HostId" type="int"></property>-->
         <property name="devNo"  column = "DevNo" type="string"></property>
     </class>
 </hibernate-mapping>

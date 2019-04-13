@@ -7,7 +7,7 @@
     	<id name="id" column="ID">
     		<generator class="increment"/>
     	</id>
-        <property name="DevId"  column = "DevId" type="int"></property>
+        <!--<property name="DevId"  column = "DevId" type="int"></property>-->
         <property name="alarmName"  column = "AlarmName" type="string"></property>
         <property name="AlarmSite"  column = "AlarmSite" type="string"></property>
         <property name="StartTime"  column = "StartTime" type="java.util.Date"></property>

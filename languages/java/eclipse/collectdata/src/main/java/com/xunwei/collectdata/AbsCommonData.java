@@ -28,7 +28,7 @@ public abstract class AbsCommonData implements ICommon{
 	public int buildingId;
 	public int alarmLevel;
 	public String alarmName;
-	
+	public Integer devId;
 	
 	
 	
@@ -124,7 +124,7 @@ public abstract class AbsCommonData implements ICommon{
 		this.hostNo = hostNo;
 	}
 	public String getDevNo() {
-		return devNo;
+		return devNo.replace("\"", "");
 	}
 	public void setDevNo(String devNo) {
 		this.devNo = devNo;
@@ -145,5 +145,12 @@ public abstract class AbsCommonData implements ICommon{
 	public void setAlarmName(String alarmName) {
 		this.alarmName = alarmName;
 	}
-	
+
+	public Integer getDevId() {
+		return devId;
+	}
+
+	public void setDevId(Integer devId) {
+		this.devId = devId;
+	}
 }

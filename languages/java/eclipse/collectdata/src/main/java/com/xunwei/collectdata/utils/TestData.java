@@ -34,7 +34,7 @@ public class TestData {
         String alertData = "{\n"+
                 "\"key\": \"1:3:3:110\",\n"+
                 "\"value\": {" +
-				"\"deviceType\":3,\n"+
+				"\"devTypeId\":3,\n"+
 				"\"devId\":1,\n"+
                 "\"alarmName\":\"电表错误\",\n"+
                 "\"alarmSite\":\"园区1\",\n"+

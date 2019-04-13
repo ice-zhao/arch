@@ -53,8 +53,8 @@ public class GasData extends AbsDataProcess {
             	GasData gas = mapper.readValue(value, GasData.class);
                 //to persist alert.
 				Query query = sess.createQuery("select Consumption, Pressure" +
-						" from GasData where StartTime = :time");
-				query.setParameter("time", gas.getStartTime(), TimestampType.INSTANCE);
+						" from GasData where timestamp = :time");
+				query.setParameter("time", gas.getTimestamp(), TimestampType.INSTANCE);
 				
 				List list = query.getResultList();
 				//only for testing

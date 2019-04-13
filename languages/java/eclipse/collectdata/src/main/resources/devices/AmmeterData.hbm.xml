@@ -3,18 +3,48 @@
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.xunwei.collectdata.devices">
-    <class name="AmmeterData" table="t_sys_ammeter">
+    <class name="AmmeterData" table="t_dev_ammeter_three">
     	<id name="id" column="ID">
     		<generator class="increment"/>
     	</id>
         <property name="Ua"  column = "Ua" type="float"></property>
+        <property name="Ub"  column = "Ub" type="float"></property>
+        <property name="Uc"  column = "Uc" type="float"></property>
+        <property name="Uab"  column = "Uab" type="float"></property>
+        <property name="Ubc"  column = "Ubc" type="float"></property>
+        <property name="Uca"  column = "Uca" type="float"></property>
+        <property name="volUnbalance"  column = "VolUnbalance" type="float"></property>
         <property name="Ia"  column = "Ia" type="float"></property>
-        <property name="ActivePower"  column = "ActivePower" type="float"></property>
+        <property name="Ib"  column = "Ib" type="float"></property>
+        <property name="Ic"  column = "Ic" type="float"></property>
+        <property name="curunbalance"  column = "Curunbalance" type="float"></property>
+        <property name="pa"  column = "Pa" type="float"></property>
+        <property name="pb"  column = "Pb" type="float"></property>
+        <property name="pc"  column = "Pc" type="float"></property>
+        <property name="pz"  column = "Pz" type="float"></property>
+        <property name="qa"  column = "Qa" type="float"></property>
+        <property name="qb"  column = "Qb" type="float"></property>
+        <property name="qc"  column = "Qc" type="float"></property>
+        <property name="qz"  column = "Qz" type="float"></property>
+        <property name="sa"  column = "Sa" type="float"></property>
+        <property name="sb"  column = "Sb" type="float"></property>
+        <property name="sc"  column = "Sc" type="float"></property>
+        <property name="sz"  column = "Sz" type="float"></property>
+        <property name="pfa"  column = "Pfa" type="float"></property>
+        <property name="pfb"  column = "Pfb" type="float"></property>
+        <property name="pfc"  column = "Pfc" type="float"></property>
+        <property name="pfz"  column = "Pfz" type="float"></property>
+        <property name="frq"  column = "Frq" type="float"></property>
+        <property name="epwr_in"  column = "Epwr_in" type="float"></property>
+        <property name="epwr_out"  column = "Epwr_out" type="float"></property>
+        <property name="eq_in"  column = "Eq_in" type="float"></property>
+        <property name="eq_out"  column = "Eq_out" type="float"></property>
+        <!--<property name="Ia"  column = "Ia" type="float"></property>-->
         <!--<property name="ParkId"  column = "ParkId" type="int"></property>-->
         <!--<property name="BuildingId"  column = "BuildingId" type="int"></property>-->
-        <property name="DevId"  column = "DevId" type="int"></property>
-        <property name="StartTime"  column = "StartTime" type="java.util.Date"></property>
-        <property name="HostId"  column = "HostId" type="int"></property>
+        <property name="devId"  column = "DevId" type="int"></property>
+        <property name="timestamp"  column = "Time" type="java.util.Date"></property>
+        <property name="hostNo"  column = "HostNo" type="string"></property>
         <property name="devNo"  column = "DevNo" type="string"></property>
     </class>
 </hibernate-mapping>

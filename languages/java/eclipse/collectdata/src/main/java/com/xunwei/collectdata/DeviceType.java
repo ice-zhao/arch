@@ -2,6 +2,8 @@ package com.xunwei.collectdata;
 
 public enum DeviceType {
 	Ammeter(1),
+	SinglePhaseAmmeter(6),
+	TemperatureHumidity_A(7),
 	WaterMeter(2),
 	NaturalGasMeter(3),
 	UPS(4),

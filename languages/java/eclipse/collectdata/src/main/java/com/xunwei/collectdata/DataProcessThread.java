@@ -6,7 +6,7 @@ public class DataProcessThread extends Thread {
 
         while(true) {
             for (DeviceType item : deviceType) {
-                AbsDataProcess dataProcess = DataProcessFactory.getDataProcessInstance(item);
+                AbsCommonData dataProcess = DataProcessFactory.getDataProcessInstance(item);
                 if (dataProcess != null)
                     dataProcess.produceData();
             }

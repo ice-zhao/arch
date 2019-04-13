@@ -7,10 +7,11 @@ public abstract class AbsDataProcess implements IDataProcess {
 	public int DevId;		//device number
 	public int deviceType;
 	public String name;		//device name
-	public Date StartTime;
+	public Date timestamp;
 	public int ParkId;
 	public int BuildingId;
 	public String DevNo;
+	public String hostNo;
 
 
 	public int getDeviceType() {
@@ -44,7 +45,15 @@ public abstract class AbsDataProcess implements IDataProcess {
 	public void setBuildingId(int buildingId) {
 		BuildingId = buildingId;
 	}
-	
+
+	public String getHostNo() {
+		return hostNo;
+	}
+
+	public void setHostNo(String hostNo) {
+		this.hostNo = hostNo;
+	}
+
 	public final Boolean produceData() {
 		if(!readData())	return false;
 		
@@ -55,6 +64,14 @@ public abstract class AbsDataProcess implements IDataProcess {
 		if(!cleanupData()) return false;
 		
 		return true;
+	}
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	public int getHostId() {
@@ -73,16 +90,8 @@ public abstract class AbsDataProcess implements IDataProcess {
 		DevId = devId;
 	}
 
-	public Date getStartTime() {
-		return StartTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		StartTime = startTime;
-	}
-
 	public String getDevNo() {
-		return DevNo;
+		return DevNo.replace("\"", "");
 	}
 
 	public void setDevNo(String devNo) {

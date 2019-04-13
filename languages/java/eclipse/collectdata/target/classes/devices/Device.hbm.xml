@@ -13,6 +13,7 @@
         </id>
         <!--<property name="buildingId"  column="Buld" type="integer"></property>-->
         <property name="name"  column="DevName" type="string"></property>
+        <property name="hostNo"  column="HostNo" type="string"></property>
         <property name="devNo"  column="DevNo" type="string"></property>
         <!--<property name="parkId"  column="ParkId" type="integer"></property>-->
         <property name="deviceType"  column="DevTypeId" type="integer"></property>

@@ -64,14 +64,14 @@ public class App
 		Thread alert = new AlertProcessThread();
 		alert.start();
 
-		//produce Testing data
+/*		//produce Testing data
 		TestData testData = new TestData();
 		try {
 //			testData.produceAlertData();
 			testData.produceDeviceData();
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
-		}
+		}*/
 	}
 
     public static void bePersistedObject(Object object) throws Throwable {
