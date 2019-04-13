@@ -8,3 +8,4 @@ target/test-classes/*
 out/*
 .svn/*
 */*/*.db
+*/*/.svn

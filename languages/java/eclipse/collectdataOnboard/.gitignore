@@ -7,3 +7,4 @@ target/test-classes/*
 .idea/workspace.xml
 out/*
 *.db
+.svn
