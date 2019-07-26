@@ -1,23 +1,23 @@
 Manifest-Version: 1.0
-Class-Path: redisson-3.10.1.jar protobuf-java-3.6.1.jar org.eclipse.pa
- ho.client.mqttv3-1.2.0.jar javax.persistence-api-2.2.jar objenesis-2.
- 5.1.jar FastInfoset-1.2.15.jar reactor-core-3.2.3.RELEASE.jar hiberna
- te-entitymanager-5.4.0.Final.jar snakeyaml-1.23.jar slf4j-log4j12-1.7
- .5.jar annotations-java5-17.0.0.jar netty-buffer-4.1.32.Final.jar net
- ty-codec-dns-4.1.32.Final.jar cache-api-1.0.0.jar jackson-core-2.9.8.
- jar jackson-dataformat-yaml-2.9.8.jar jaxb-runtime-2.3.1.jar javax.ac
- tivation-api-1.2.0.jar slf4j-api-1.7.25.jar netty-transport-4.1.32.Fi
- nal.jar fastjson-1.2.54.jar jodd-core-3.7.1.jar netty-handler-4.1.32.
- Final.jar hibernate-core-5.4.0.Final.jar classmate-1.3.4.jar jodd-bea
- n-3.7.1.jar jackson-databind-2.9.8.jar jboss-transaction-api_1.2_spec
- -1.1.1.Final.jar mchange-commons-java-0.2.11.jar netty-codec-4.1.32.F
- inal.jar jaxb-api-2.3.1.jar jboss-logging-3.3.2.Final.jar mysql-conne
- ctor-java-8.0.13.jar netty-common-4.1.32.Final.jar c3p0-0.9.5.2.jar t
- xw2-2.3.1.jar antlr-2.7.7.jar istack-commons-runtime-3.0.7.jar netty-
- resolver-dns-4.1.32.Final.jar byte-buddy-1.9.5.jar stax-ex-1.8.jar hi
- bernate-c3p0-5.4.0.Final.jar jackson-annotations-2.9.0.jar jandex-2.0
- .5.Final.jar reactive-streams-1.0.2.jar log4j-1.2.17.jar dom4j-2.1.1.
- jar hibernate-commons-annotations-5.1.0.Final.jar netty-resolver-4.1.
- 32.Final.jar javassist-3.24.0-GA.jar fst-2.56.jar rxjava-2.1.13.jar
+Class-Path: fastjson-1.2.54.jar hibernate-core-5.4.0.Final.jar netty-r
+ esolver-4.1.34.Final.jar jackson-databind-2.9.8.jar jandex-2.0.5.Fina
+ l.jar reactor-core-3.2.6.RELEASE.jar netty-transport-4.1.34.Final.jar
+  antlr-2.7.7.jar netty-resolver-dns-4.1.34.Final.jar hibernate-c3p0-5
+ .4.0.Final.jar stax-ex-1.8.jar jackson-dataformat-yaml-2.9.8.jar mysq
+ l-connector-java-8.0.13.jar snakeyaml-1.23.jar netty-codec-4.1.34.Fin
+ al.jar redisson-3.10.6.jar dom4j-2.1.1.jar annotations-java5-17.0.0.j
+ ar jackson-annotations-2.9.0.jar hibernate-entitymanager-5.4.0.Final.
+ jar netty-handler-4.1.34.Final.jar rxjava-2.2.7.jar javassist-3.24.0-
+ GA.jar slf4j-log4j12-1.7.5.jar netty-common-4.1.34.Final.jar jaxb-api
+ -2.3.1.jar objenesis-2.5.1.jar fst-2.57.jar c3p0-0.9.5.2.jar netty-bu
+ ffer-4.1.34.Final.jar jboss-logging-3.3.2.Final.jar jackson-core-2.9.
+ 8.jar jaxb-runtime-2.3.1.jar hibernate-commons-annotations-5.1.0.Fina
+ l.jar classmate-1.3.4.jar jodd-core-5.0.10.jar istack-commons-runtime
+ -3.0.7.jar jboss-transaction-api_1.2_spec-1.1.1.Final.jar reactive-st
+ reams-1.0.2.jar byte-buddy-1.9.5.jar txw2-2.3.1.jar cache-api-1.0.0.j
+ ar slf4j-api-1.7.25.jar log4j-1.2.17.jar org.eclipse.paho.client.mqtt
+ v3-1.2.0.jar FastInfoset-1.2.15.jar javax.persistence-api-2.2.jar jav
+ ax.activation-api-1.2.0.jar protobuf-java-3.6.1.jar mchange-commons-j
+ ava-0.2.11.jar jodd-bean-5.0.10.jar netty-codec-dns-4.1.34.Final.jar
 Main-Class: com.xunwei.collectdata.App
 

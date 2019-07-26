@@ -73,6 +73,7 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
     		// such as cleanSession and LWT
 	    	conOpt = new MqttConnectOptions();
 	    	conOpt.setCleanSession(clean);
+	    	conOpt.setKeepAliveInterval(10);
 	    	if(password != null ) {
           conOpt.setPassword(this.password.toCharArray());
         }
@@ -113,6 +114,8 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
     	if(null == disc)
     		disc = new Disconnector();
     	disc.doDisconnect();
+
+		waitForStateChange(10000);
     }
     /**
      * Publish / send a message to an MQTT server
@@ -175,11 +178,18 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
 		// An application may choose to implement reconnection
 		// logic at this point. This sample simply exits.
 		log("Connection to " + brokerUrl + " lost!" + cause);
+		try {
+//			this.disconnect();
+			Thread.sleep(8000);
+		} catch (Throwable throwable) {
+			throwable.printStackTrace();
+		}
+
 		while(!this.isConnect()) {
 			try {
-				Thread.sleep(8000);
-				this.disconnect();
-				Thread.sleep(5000);
+				Thread.sleep(60000);
+//				this.disconnect();
+//				Thread.sleep(5000);
 				this.connect();
 				Thread.sleep(8000);
 			} catch (Throwable e) {

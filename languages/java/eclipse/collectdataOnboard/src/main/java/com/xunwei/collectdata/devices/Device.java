@@ -16,6 +16,7 @@ import java.util.Map;
 //@Table(name = "t_sys_device")
 public class Device extends AbsCommonData {
 	private boolean isRegistered = false;
+	private boolean isViolate = false;		//the device violates the database constraints.
 	private Map<String, Object> jmap = new HashMap<String, Object>();
 	private String jsonData = null;
 
@@ -34,6 +35,7 @@ public class Device extends AbsCommonData {
 		jmap.put("devNo", this.getDevNo());
 		jmap.put("deviceType",this.getDeviceType());
 		jmap.put("startTime", this.getStartTime());
+		jmap.put("hostId", 3);
 
 		//only for test data field.
 /*		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -53,5 +55,13 @@ public class Device extends AbsCommonData {
 		}
 
 		return jsonData;
+	}
+
+	public boolean isViolate() {
+		return isViolate;
+	}
+
+	public void setViolate(boolean violate) {
+		isViolate = violate;
 	}
 }

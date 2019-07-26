@@ -14,8 +14,8 @@
       <property name = "hibernate.connection.driver_class">org.sqlite.JDBC</property>
       <property name="hibernate.jdbc.time_zone">UTC</property>
       <!-- Assume xunwei is the database name -->
-      <property name = "hibernate.connection.url">jdbc:sqlite:F:\\Projects\\arch\\languages\\java\\eclipse\\collectdataOnboard\\dhData.db</property>
-      <!--<property name = "hibernate.connection.url">jdbc:sqlite:/home/gxy/core/DataBase/dhData.db</property>-->
+      <!--<property name = "hibernate.connection.url">jdbc:sqlite:F:\\Projects\\xunwei\\temp\\board sqlite\\dhData.db</property>-->
+      <property name = "hibernate.connection.url">jdbc:sqlite:/home/gxy/core/DataBase/dhData.db</property>
       <!--<property name = "hibernate.connection.username"></property>-->
       <!--<property name = "hibernate.connection.password"></property>-->
       <!-- database connection pool -->

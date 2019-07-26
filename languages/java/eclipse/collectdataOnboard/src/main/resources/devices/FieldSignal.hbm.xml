@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.xunwei.collectdata">
+    <class name="FieldSignal" table="t_field">
+        <!--<composite-id class="Device">-->
+            <!--<key-property name="hostID" type="integer"></key-property>-->
+            <!--<key-property name="deviceNumber" type="integer"></key-property>-->
+        <!--</composite-id>-->
+        <id name="id"  column= "ID" type="integer"></id>
+        <property name="proCode"  column="ProCode" type="integer"></property>
+        <property name="bitIndex"  column="BitIndex" type="integer"></property>
+        <property name="mapIndex"  column="MapIndex" type="integer"></property>
+        <property name="meaning"  column="Meaning" type="string"></property>
+        <property name="category"  column="Category" type="integer"></property>
+        <property name="valType"  column="ValType" type="string"></property>
+        <property name="alarmCfg"  column="AlarmCfg" type="string"></property>
+        <property name="saveStrategy"  column="SaveStrategy" type="string"></property>
+        <property name="magTimes"  column="MagTimes" type="integer"></property>
+        <property name="unit"  column="Unit" type="string"></property>
+        <property name="disMode"  column="DisMode" type="integer"></property>
+        <property name="disOptions"  column="DisOptions" type="string"></property>
+        <property name="remark"  column="Remark" type="string"></property>
+        <property name="schemaId"  column="SchemaId" type="integer"></property>
+    </class>
+</hibernate-mapping>

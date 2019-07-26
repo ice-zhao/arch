@@ -1,8 +1,11 @@
 package com.xunwei.collectdata;
 
 import com.xunwei.collectdata.devices.Device;
+import com.xunwei.services.MqttAsyncCallback;
+import com.xunwei.services.daos.DeviceService;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,31 +19,18 @@ public class DataProcessThread extends Thread {
 
 	//devNo,devid
 	private static final HashMap<String,Integer> devNoIdMap = new HashMap<String, Integer>();
-	
+	MqttAsyncCallback mqttClient = TopicFactory.getInstanceOfTalkTopics();
+
     public void run() {
         String devNo;
         int devType = -1;
         int devid = -1;
 
-//        Session session = App.getDataSession();
-//		Query query1;
-//		query1 = session.createSQLQuery("select Value,FieldId,EntityId from t_data4 " +
-//				" where EntityId = 413").addEntity(HostData.class);
-//		List<HostData> list1 = query1.list();
-//		System.out.println("######################### "+ list1.get(0).getValue());
-//        Query query1 = session.createQuery("select id,devId,timestamp,schemaId from Entity where devId = :dev_id");
-//		Query query1 = session.createSQLQuery("select id, max(timestamp), from Entity where devId = :dev_id");
-//		Query query1 = session.createQuery("from Entity where devId = :dev_id and " +
-//				"timestamp = (select max(timestamp) from Entity)");
-//        query1.setParameter("dev_id", 2);
-//        List<Entity> list1 = query1.list();
-//		System.out.println("!!!!!!!!!!!!!!!!!!!!!!! " + list1.get(0).getId());
-
 		while(true) {
-//			System.out.println("!!!!!!!!!!!!!!!!!!!!!!! ");
-			if(!App.isHostRegistered()) {
+			if(!App.isHostRegistered() || !mqttClient.isConnect()) {
 				try {
-					Thread.sleep(3000);
+					Thread.sleep(5000);
+					arrayBlockQueue.clear();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -49,8 +39,8 @@ public class DataProcessThread extends Thread {
 
         	try {
 				devNo = arrayBlockQueue.take();
-//				System.out.println("@@@@@@@@@@@@@@ "+devNo);
-			} catch (InterruptedException e1) {
+//				System.out.println("take devNo from device block queue: " + devNo);
+			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 				devNo = "";
@@ -58,25 +48,27 @@ public class DataProcessThread extends Thread {
         	
         	if(!devNo.equals("")) {
         		if(!devNoTypeMap.containsKey(devNo)) {
-        			//TODO: query devType, then add it to map.
-					Session cfg_sess = App.getSession();
-					Query query = cfg_sess.createQuery("from Device where devNo=:dev_No");
-					query.setParameter("dev_No", devNo.replaceAll("\"", ""));
-					List<Device> list = query.list();
-					if(list.size() <= 0)
+					DeviceService deviceService = DeviceService.getInstance();
+					List<Device> list= deviceService.getDeviceByDevNo(devNo);
+
+					if(list.size() <= 0) {
+						devNoTypeMap.put(devNo, -1);
+						devNoIdMap.put(devNo, -1);
 						continue;
+					}
 
 					devType = list.get(0).getDeviceType();
 					devid = list.get(0).getId();
-//					System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%% " + devid);
-        			//if query fail, continue.
         			devNoTypeMap.put(devNo, devType);
         			devNoIdMap.put(devNo, devid);
         		}
 
 				devType = devNoTypeMap.get(devNo);
+        		devid = devNoIdMap.get(devNo);
+        		if(devid == -1 || devType == -1)
+        			continue;
+
 				DeviceType type = DeviceType.getInstance(devType);
-				System.out.println("@@@@@@@@@@@@@@ "+type);
 				if(type != null) {
 					AbsCommonData dataProcess = DataProcessFactory.getDataProcessInstance(type);
 					if (dataProcess != null) {
@@ -103,5 +95,9 @@ public class DataProcessThread extends Thread {
     	if(devNoIdMap.containsKey(devNo))
     		return devNoIdMap.get(devNo);
     	return -1;
+	}
+
+	public static void clearQueue() {
+		arrayBlockQueue.clear();
 	}
 }

@@ -3,17 +3,19 @@ package com.xunwei.collectdata;
 //import javax.persistence.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xunwei.collectdata.utils.DataUtil;
 import com.xunwei.collectdata.utils.JacksonFactory;
+import com.xunwei.collectdata.utils.JedisClientFactory;
 import com.xunwei.services.MqttAsyncCallback;
-import org.hibernate.Query;
-import org.hibernate.Session;
+import redis.clients.jedis.Jedis;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-//@Entity
+import static com.xunwei.collectdata.utils.DevDataService.MapAdapter;
+
+//@javax.persistence.Entity
 public abstract class AbsCommonData implements ICommon{
 //	@Id
 //	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +49,9 @@ public abstract class AbsCommonData implements ICommon{
 	public String jsonData = null;
 	public Entity entity = null;
 
+	public Map<Integer,Integer> allSignals = null;
+	public HashMap<String, Date> dateHashMap = new HashMap<String, Date>();
+
 	public Integer getDevId() {
 		return devId;
 	}
@@ -79,41 +84,48 @@ public abstract class AbsCommonData implements ICommon{
 	}
 
 	public Boolean readData() {
-		Session session = App.getDataSession();
-		Query query1;
-		Integer entityId;
-		Integer month;
+		Jedis jedis = null;
 
-		query1 = session.createQuery("from Entity where devId = :dev_id and " +
-				"timestamp = (select max(timestamp) from Entity where devId = :dev_id)");
-		query1.setParameter("dev_id", getDevId());
-		listEntity = query1.list();
-		System.out.println("dddddddddddddddddddd " + listEntity.size() + "      " + getDevId());
-		if(listEntity == null) {
-			System.out.println("AmmeterData: listEntity is null.");
+		String redisKey = String.format("map_data_%d", devId);
+		String timeKey = String.format("map_time_%d", devId);
+		Map<byte[], byte[]> map = null;
+		Map<byte[], byte[]> time = null;
+		try {
+			App.semaphore.acquire();
+			jedis = JedisClientFactory.getJedisInstance();
+			map = jedis.hgetAll(redisKey.getBytes());
+			time = jedis.hgetAll(timeKey.getBytes());
+		} catch (Exception e) {
+			System.out.println("AbsCommonData caused by: " + e.getCause() + " Message: " + e.getMessage());
 			return false;
+		} finally {
+			App.semaphore.release();
+			JedisClientFactory.returnJedisInstance(jedis);
 		}
 
-		entity = listEntity.get(0);
-		entityId = listEntity.get(0).getId();
-		month = listEntity.get(0).getMonth();
-		if(entityId == null || month == null || entity == null) {
-			System.out.println("AmmeterData: entityId or month or entity is null.");
+		if(!map.isEmpty()) {
+			allSignals = MapAdapter(map);
+			timestamp = new Date();
+
+			if(!time.isEmpty()) {
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);//设置日期格式
+				for (Map.Entry<byte[], byte[]> entry : time.entrySet()) {
+					Integer dateVal = DataUtil.ByteArr2Int(entry.getValue());
+					Long lval = Long.parseLong(Integer.toString(dateVal)) *1000;
+					String date = df.format(lval);
+					try {
+						timestamp = df.parse(date);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					break;
+				}
+			}
+		}
+		else {
+			allSignals = null;
 			return false;
 		}
-
-//		System.out.println("######################### "+ entityId);
-
-		query1 = session.createSQLQuery("select Value,FieldId,EntityId from " + getDataTable(month) +
-				" where EntityId = " + entityId).
-				addEntity(HostData.class);
-		dataList = query1.list();
-		if(dataList == null) {
-			System.out.println("AmmeterData: list1 is null.");
-			return false;
-		}
-
-//		System.out.println("######################### "+ dataList.get(0).getValue());
 		return true;
 	}
 	
@@ -124,18 +136,26 @@ public abstract class AbsCommonData implements ICommon{
 	
 	public Boolean storeData() {
 		Boolean result = false;
+
 		if(jsonRes != null) {
 			ObjectMapper objectMapper = JacksonFactory.getObjectMapper();
-			try {
-				jsonData = objectMapper.writeValueAsString(jsonRes);
+			MqttAsyncCallback mqttAsyncCallback = TopicFactory.getInstanceOfTalkTopics();
 
-				MqttAsyncCallback mqttAsyncCallback = TopicFactory.getInstanceOfTalkTopics();
-				mqttAsyncCallback.publish(App.topicDevReplyData, 2, jsonData.getBytes("UTF-8"));
+			try {
+				App.semaphore.acquire();
+				jsonData = objectMapper.writeValueAsString(jsonRes);
+				System.out.println("[" + getDevNo() + "] " + jsonData);
+				if(mqttAsyncCallback.isConnect())
+					mqttAsyncCallback.publish(App.topicDevReplyData, 2, jsonData.getBytes("UTF-8"));
 				result = true;
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
+				result = false;
 			} catch (Throwable throwable) {
 				throwable.printStackTrace();
+				result = false;
+			} finally {
+				App.semaphore.release();
 			}
 		}
 		return result;
@@ -238,6 +258,19 @@ public abstract class AbsCommonData implements ICommon{
 
 	public void setAlarmName(String alarmName) {
 		this.alarmName = alarmName;
+	}
+
+	public boolean isTimestampChanged() {
+		if(dateHashMap.containsKey(getDevNo())) {
+			if(dateHashMap.get(getDevNo()).equals(timestamp))
+				return false;
+			else
+				dateHashMap.put(getDevNo(), timestamp);
+		}
+		else
+			dateHashMap.put(getDevNo(), timestamp);
+
+		return true;
 	}
 	
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.xunwei.collectdata.devices">
+    <class name="PM25EnvDevice" table="t_dev_pm25device">
+    	<id name="id" column="ID">
+    		<generator class="increment"/>
+    	</id>
+        <property name="co2"  column = "co2" type="float"></property>
+        <property name="tvoc"  column = "tvoc" type="float"></property>
+        <property name="ch2o"  column = "ch2o" type="float"></property>
+        <property name="pm25"  column = "pm25" type="float"></property>
+        <property name="temperature"  column = "Temperature" type="float"></property>
+        <property name="humidity"  column = "Humidity" type="float"></property>
+        <property name="pm10"  column = "pm10" type="float"></property>
+        <!--<property name="ParkId"  column = "ParkId" type="int"></property>-->
+        <!--<property name="BuildingId"  column = "BuildingId" type="int"></property>-->
+        <property name="devId"  column = "DevId" type="int"></property>
+        <property name="time"  column = "Time" type="java.util.Date"></property>
+        <property name="hostNo"  column = "HostNo" type="string"></property>
+        <property name="devNo"  column = "DevNo" type="string"></property>
+    </class>
+</hibernate-mapping>

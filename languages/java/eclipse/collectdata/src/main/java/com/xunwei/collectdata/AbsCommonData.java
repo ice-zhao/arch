@@ -24,12 +24,13 @@ public abstract class AbsCommonData implements ICommon{
 	public Date startTime;
 	public Date endTime;
 	public Date timestamp;
-	public int parkId;
+	public Integer parkId;
 	public int buildingId;
 	public int alarmLevel;
 	public String alarmName;
 	public Integer devId;
-	
+	public Integer hostId;
+	public Date time;
 	
 	
 	public Boolean readData() {
@@ -87,10 +88,10 @@ public abstract class AbsCommonData implements ICommon{
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}
-	public int getParkId() {
+	public Integer getParkId() {
 		return parkId;
 	}
-	public void setParkId(int parkId) {
+	public void setParkId(Integer parkId) {
 		this.parkId = parkId;
 	}
 	public int getBuildingId() {
@@ -152,5 +153,21 @@ public abstract class AbsCommonData implements ICommon{
 
 	public void setDevId(Integer devId) {
 		this.devId = devId;
+	}
+
+	public Integer getHostId() {
+		return hostId;
+	}
+
+	public void setHostId(Integer hostId) {
+		this.hostId = hostId;
+	}
+
+	public Date getTime() {
+		return time;
+	}
+
+	public void setTime(Date time) {
+		this.time = time;
 	}
 }

@@ -1,7 +1,12 @@
 package com.xunwei.collectdata.devices;
 import com.xunwei.collectdata.AbsCommonData;
 import com.xunwei.collectdata.DataProcessThread;
-import com.xunwei.collectdata.HostData;
+import com.xunwei.collectdata.FieldSignal;
+import com.xunwei.services.daos.FieldSignalService;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 import static com.xunwei.collectdata.HostField.*;
 
@@ -46,125 +51,138 @@ public class AmmeterData extends AbsCommonData {
 	}
 
 	public Boolean processData() {
-		boolean result = true;
+		boolean result = false;
+
+		if(!isTimestampChanged())
+			return false;
+
 		Host host = Host.getHostInstance();
-		if(dataList != null) {
+		if (allSignals != null) {
 			Integer devType = DataProcessThread.getDeviceType(getDevNo());
 			jsonRes.put("key", host.getHostNo() + ":" + getDevNo() + ":" + devType + ":100");
 
-			for (HostData hostData : dataList) {
-				System.out.println("@@@@@@@@@@@@@@@@@@@@@@@ " + hostData.getValue());
-				switch (hostData.getFieldId()) {
+			for (Map.Entry<Integer,Integer> hostData : allSignals.entrySet()) {
+				Integer signalId =hostData.getKey();
+				Integer signalVal = hostData.getValue();
+//				System.out.println(getDevNo()+"  " + signalVal);
+
+				FieldSignalService signalService = FieldSignalService.getFieldSignalService();
+				FieldSignal fieldSignal = signalService.getSignalById(signalId);
+
+				switch (signalId) {
 					case UA:
-						jsonMap.put("ua", hostData.getValue());
+						jsonMap.put("ua", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case UB:
-						jsonMap.put("ub", hostData.getValue());
+						jsonMap.put("ub", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case UC:
-						jsonMap.put("uc", hostData.getValue());
+						jsonMap.put("uc", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case UAB:
-						jsonMap.put("uab", hostData.getValue());
+						jsonMap.put("uab", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case UBC:
-						jsonMap.put("ubc", hostData.getValue());
+						jsonMap.put("ubc", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case UCA:
-						jsonMap.put("uca", hostData.getValue());
+						jsonMap.put("uca", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case VolUnbalance:
-						jsonMap.put("volUnbalance", hostData.getValue());
+						jsonMap.put("volUnbalance", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case IA:
-						jsonMap.put("ia", hostData.getValue());
+						jsonMap.put("ia", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case IB:
-						jsonMap.put("ib", hostData.getValue());
+						jsonMap.put("ib", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case IC:
-						jsonMap.put("ic", hostData.getValue());
+						jsonMap.put("ic", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case Curunbalance:
-						jsonMap.put("curunbalance", hostData.getValue());
+						jsonMap.put("curunbalance", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case PA:
-						jsonMap.put("pa", hostData.getValue());
+						jsonMap.put("pa", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case PB:
-						jsonMap.put("pb", hostData.getValue());
+						jsonMap.put("pb", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case PC:
-						jsonMap.put("pc", hostData.getValue());
+						jsonMap.put("pc", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case PZ:
-						jsonMap.put("pz", hostData.getValue());
+						jsonMap.put("pz", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case QA:
-						jsonMap.put("qa", hostData.getValue());
+						jsonMap.put("qa", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case QB:
-						jsonMap.put("qb", hostData.getValue());
+						jsonMap.put("qb", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case QC:
-						jsonMap.put("qc", hostData.getValue());
+						jsonMap.put("qc", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case QZ:
-						jsonMap.put("qz", hostData.getValue());
+						jsonMap.put("qz", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case SA:
-						jsonMap.put("sa", hostData.getValue());
+						jsonMap.put("sa", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case SB:
-						jsonMap.put("sb", hostData.getValue());
+						jsonMap.put("sb", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case SC:
-						jsonMap.put("sc", hostData.getValue());
+						jsonMap.put("sc", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case SZ:
-						jsonMap.put("sz", hostData.getValue());
+						jsonMap.put("sz", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case PFA:
-						jsonMap.put("pfa", hostData.getValue());
+						jsonMap.put("pfa", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case PFB:
-						jsonMap.put("pfb", hostData.getValue());
+						jsonMap.put("pfb", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case PFC:
-						jsonMap.put("pfc", hostData.getValue());
+						jsonMap.put("pfc", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case PFZ:
-						jsonMap.put("pfz", hostData.getValue());
+						jsonMap.put("pfz", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case FRQ:
-						jsonMap.put("frq", hostData.getValue());
+						jsonMap.put("frq", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case Epwr_in:
-						jsonMap.put("epwr_in", hostData.getValue());
+						jsonMap.put("epwr_in", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case Epwr_out:
-						jsonMap.put("epwr_out", hostData.getValue());
+						jsonMap.put("epwr_out", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case Eq_in:
-						jsonMap.put("eq_in", hostData.getValue());
+						jsonMap.put("eq_in", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					case Eq_out:
-						jsonMap.put("eq_out", hostData.getValue());
+						jsonMap.put("eq_out", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
 						break;
 					default:
-						System.out.println("3-phases ammeter don't have this kind of field. value: " + hostData.getValue());
+						System.out.println("3-phases ammeter don't have this kind of field. value: " + signalId);
 						break;
 				}
 			}
 
-			jsonMap.put("timestamp", entity.getTimestamp());
+//			jsonMap.put("timestamp", entity.getTimestamp());
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+			jsonMap.put("time", df.format(timestamp));// new Date()为获取当前系统时间
 			jsonMap.put("devNo", getDevNo());
 			jsonMap.put("hostNo", host.getHostNo());
 			jsonMap.put("devId", getDevId());
 
 			jsonRes.put("value", jsonMap);
+			result = true;
 		}
-		return true;
+		return result;
 	}
 
 	public Boolean storeData() {

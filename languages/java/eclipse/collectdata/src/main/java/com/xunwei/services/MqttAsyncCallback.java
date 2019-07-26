@@ -76,6 +76,7 @@ public class MqttAsyncCallback implements MqttCallback,Runnable {
     		// such as cleanSession and LWT
 	    	conOpt = new MqttConnectOptions();
 	    	conOpt.setCleanSession(clean);
+			conOpt.setKeepAliveInterval(0);
 	    	if(password != null ) {
           conOpt.setPassword(this.password.toCharArray());
         }

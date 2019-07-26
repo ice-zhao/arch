@@ -1,5 +1,6 @@
 package com.xunwei.collectdata.alert;
 
+import com.xunwei.collectdata.AbsCommonData;
 import com.xunwei.collectdata.DeviceType;
 
 public class AlertProcessThread extends Thread {
@@ -8,9 +9,9 @@ public class AlertProcessThread extends Thread {
 
         do {
             for (DeviceType item : deviceType) {
-                AbsAlert alertProcess = AlertProcessFactory.getAlertInstance(item);
+                AbsCommonData alertProcess = AlertProcessFactory.getAlertInstance(item);
                 if (alertProcess != null)
-                    alertProcess.produceAlertData();
+                    alertProcess.produceData();
             }
             try {
                 Thread.sleep(2000);

@@ -2,7 +2,12 @@ package com.xunwei.collectdata.devices;
 
 import com.xunwei.collectdata.AbsCommonData;
 import com.xunwei.collectdata.DataProcessThread;
-import com.xunwei.collectdata.HostData;
+import com.xunwei.collectdata.FieldSignal;
+import com.xunwei.services.daos.FieldSignalService;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 import static com.xunwei.collectdata.HostField.*;
 
@@ -23,53 +28,66 @@ public class SinglePhaseAmmeter extends AbsCommonData {
 
     @Override
     public Boolean processData() {
-        boolean result = true;
+        boolean result = false;
+
+        if(!isTimestampChanged())
+            return false;
+
         Host host = Host.getHostInstance();
-        if (dataList != null) {
+        if (allSignals != null) {
             Integer devType = DataProcessThread.getDeviceType(getDevNo());
             jsonRes.put("key", host.getHostNo() + ":" + getDevNo() + ":" + devType + ":100");
 
-            for (HostData hostData : dataList) {
-                System.out.println("@@@@@@@@@@@@@@@@@@@@@@@ " + hostData.getValue());
-                switch (hostData.getFieldId()) {
+            for (Map.Entry<Integer,Integer> hostData : allSignals.entrySet()) {
+                Integer signalId =hostData.getKey();
+                Integer signalVal = hostData.getValue();
+
+//                System.out.println(getDevNo()+"  " + signalVal);
+
+                FieldSignalService signalService = FieldSignalService.getFieldSignalService();
+                FieldSignal fieldSignal = signalService.getSignalById(signalId);
+
+                switch (signalId) {
                     case PhaseVoltage:
-                        jsonMap.put("ua", hostData.getValue());
+                        jsonMap.put("ua", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
                         break;
                     case PhaseCurrent:
-                        jsonMap.put("ia", hostData.getValue());
+                        jsonMap.put("ia", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
                         break;
                     case Power:
-                        jsonMap.put("pa", hostData.getValue());
+                        jsonMap.put("pa", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
                         break;
                     case QPower:
-                        jsonMap.put("qa", hostData.getValue());
+                        jsonMap.put("qa", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
                         break;
                     case PowerPF:
-                        jsonMap.put("pfa", hostData.getValue());
+                        jsonMap.put("pfa", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
                         break;
                     case SystemFrq:
-                        jsonMap.put("frq", hostData.getValue());
+                        jsonMap.put("frq", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
                         break;
                     case EPWR:
-                        jsonMap.put("epwr", hostData.getValue());
+                        jsonMap.put("epwr", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
                         break;
                     case ERQ:
-                        jsonMap.put("erq", hostData.getValue());
+                        jsonMap.put("erq", fieldSignal != null ? fieldSignal.GetFieldValue(signalVal) : signalVal);
                         break;
                     default:
-                        System.out.println("single phase ammeter don't have this kind of field. value: " + hostData.getValue());
+                        System.out.println("single phase ammeter don't have this kind of field. value: " + signalId);
                         break;
                 }
             }
 
-            jsonMap.put("timestamp", entity.getTimestamp());
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+            jsonMap.put("time", df.format(timestamp));// new Date()为获取当前系统时间
             jsonMap.put("devNo", getDevNo());
             jsonMap.put("hostNo", host.getHostNo());
 
             jsonRes.put("value", jsonMap);
+            result = true;
         }
 
-        return super.processData();
+        return result;
     }
 
     public Boolean storeData() {
@@ -139,4 +157,5 @@ public class SinglePhaseAmmeter extends AbsCommonData {
     public void setErq(float erq) {
         this.erq = erq;
     }
+
 }

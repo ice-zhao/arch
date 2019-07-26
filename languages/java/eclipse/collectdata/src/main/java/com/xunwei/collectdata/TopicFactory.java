@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class TopicFactory {
+public class TopicFactory {
 	// Default settings:
 	private boolean quietMode 	= false;
 	private String action 		= "publish";
@@ -34,7 +34,9 @@ class TopicFactory {
 	private static TopicFactory topicFactory = null;
 	private boolean isStartAll = false;
 	private String protocol = "tcp://";
-	private String url = protocol + broker + ":" + port;
+	private String url = null;
+	private static String redisServer = "redis://192.168.0.168:6379";
+	private static String redisPass = "xunwei";
 //	private boolean ssl = false;
 
 	private TopicFactory(String[] args) {
@@ -76,6 +78,8 @@ class TopicFactory {
 //          case 'v': ssl = Boolean.valueOf(args[++i]).booleanValue();  break;
           case 'u': userName = args[++i];               break;
           case 'z': password = args[++i];               break;
+          case 'R': redisServer = args[++i];            break;
+          case 'P': redisPass = args[++i];            break;
 					default:
 						System.out.println("Unrecognised argument: "+args[i]);
 						printHelp();
@@ -87,7 +91,8 @@ class TopicFactory {
 				return;
 			}
 		}
-		
+
+		url = protocol + broker + ":" + port;
 	}
 
 	static TopicFactory getInstance(String[] args) {
@@ -96,8 +101,18 @@ class TopicFactory {
 		return topicFactory;
 	}
 
+	void clearRedisKeys() {
+		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
+		RKeys keys = redissonClient.getKeys();
+		keys.deleteByPattern("*");
+
+	}
+
 	void startAllTopics() {
 		if(isStartAll) return;
+
+		//clear all Redis keys
+		clearRedisKeys();
 
 		try {
 			talkOnRegisterHost();
@@ -225,9 +240,10 @@ class TopicFactory {
 						String jsonData;
 						while(true) {
 							try {
-								jsonData = queue.poll(0, TimeUnit.DAYS);        //infinitely wait
-//								System.out.println("##############" + jsonData);
-								this.publish(this.getPubTopic(), qos, jsonData.getBytes());
+								jsonData = queue.poll(10, TimeUnit.MINUTES);        //infinitely wait
+								System.out.println("webRequestQueue received: " + jsonData);
+								if(jsonData != null)
+									this.publish(this.getPubTopic(), qos, jsonData.getBytes());
 							} catch (Throwable throwable) {
 								throwable.printStackTrace();
 							}
@@ -276,13 +292,25 @@ class TopicFactory {
 		deviceDataReadSubClient.subscribe(subTopic,qos);
 
 		//only for test redisson blocking queue
-		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
-		RBlockingQueue<String> rBlockingQueue = redissonClient.getBlockingQueue("webRequestQueue");
-		String queueData = "{\n" +
-				"\"hostNo\" : \"dev_88\",\n" +
-				"\"devNo\" : [\"AMT_C\",\"AMT_B\",\"TH_1\"]\n" +
+//		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
+//		RBlockingQueue<String> rBlockingQueue = redissonClient.getBlockingQueue("webRequestQueue");
+//		String queueData = "{\n" +
+//				"\"hostNo\" : \"dev_88\",\n" +
+//				"\"devNo\" : [\"AMT_C\",\"AMT_B\",\"TH_1\"]\n" +
+//				"}";
+/*		String queueData = "{\n" +
+				"\"hostNo\" : \"*\",\n" +
+				"\"devNo\" : [\"TH-SENSOR1\"]\n" +
+				"}";*/
+//		String queueData = "{\n" +
+//				"\"hostNo\" : \"*\",\n" +
+//				"\"devNo\" : [\"*\"]\n" +
+//				"}";
+/*		String queueData = "{\n" +
+				"\"hostNo\" : \"*\",\n" +
+				"\"devNo\" : [\"*\"]\n" +
 				"}";
-		rBlockingQueue.add(queueData);
+		rBlockingQueue.add(queueData);*/
 	}
 
 	private void talkOnRegisterDevices() throws Throwable {
@@ -315,24 +343,38 @@ class TopicFactory {
 						Session session = App.getSession();
 
 						try {
-							//TODO: add hostNo as the second condition.
-							Query query = session.createQuery("select 1 from Device where devNo=:devno");
+							Query query = session.createQuery("select 1 from Device where hostNo = :host_no and " +
+									"devNo=:devno");
 							query.setParameter("devno", device.getDevNo());
+							query.setParameter("host_no", device.getHostNo());
 							List list = query.getResultList();
-							if(list.isEmpty())
-								App.bePersistedObject(device);
+
+							if(list.isEmpty()) {
+								query = session.createQuery("from Host where hostNo = :host_no");
+								query.setParameter("host_no", device.getHostNo());
+								List<Host> list1 = query.getResultList();
+
+								if(list1 != null && list1.size() > 0) {
+									device.setHostId(list1.get(0).getId());
+									App.bePersistedObject(device);
+								} else
+									result = false;
+							}
 						} catch (Throwable throwable) {
-							throwable.printStackTrace();
+//							throwable.printStackTrace();
+							System.out.println("\nCausedBy: " + throwable.getCause());
 							result = false;
 						}
+
+						App.closeSession(session);
 
 						String reply = "{\n" +
 								"\"errorNumber\":0,\n" +
 								"\"description\":\"Device registers successfully.\"\n" +
 								"}";
 						if(!result) reply = "{\n" +
-								"\"errorNumber\":0,\n" +
-								"\"description\":\"Device has been registered.\"\n" +
+								"\"errorNumber\":-1,\n" +
+								"\"description\":\"Device registered failure.\"\n" +
 								"}";
 
 						try {
@@ -399,17 +441,29 @@ class TopicFactory {
 
 	private void storeListToRedis(JsonNode key, JsonNode value) {
 		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
-		RList<String> rList = redissonClient.getList(key.asText());
-		rList.add(value.toString());
-		rList.expire(10, TimeUnit.MINUTES);
+        try {
+            App.semaphore.acquire();
+            RList<String> rList = redissonClient.getList(key.asText());
+            if(rList.size() > 0)
+                rList.clear();
+            rList.add(value.toString());
+//            rList.expire(30, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            App.semaphore.release();
+        }
 	}
 
+	public static String getRedisServer() {
+		return redisServer;
+	}
 
+	public static String getRedisPass() {
+		return redisPass;
+	}
 
-
-
-
-	/*public void testLocalTopic() {
+/*public void testLocalTopic() {
 		// With a valid set of arguments, the real work of
 		// driving the client API can begin
 		try {

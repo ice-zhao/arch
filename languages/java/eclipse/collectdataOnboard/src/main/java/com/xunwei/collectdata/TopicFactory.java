@@ -2,6 +2,7 @@ package com.xunwei.collectdata;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.ArrayType;
 import com.xunwei.collectdata.devices.Device;
 import com.xunwei.collectdata.devices.DeviceRegisterThread;
 import com.xunwei.collectdata.devices.Host;
@@ -9,6 +10,7 @@ import com.xunwei.collectdata.utils.ErrorInfo;
 import com.xunwei.collectdata.utils.JacksonFactory;
 import com.xunwei.collectdata.utils.RedissonClientFactory;
 import com.xunwei.services.MqttAsyncCallback;
+import org.apache.xpath.operations.Bool;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.hibernate.Query;
@@ -23,8 +25,10 @@ public class TopicFactory {
 	private boolean quietMode 	= false;
 	private String action 		= "publish";
 	private int qos 			= 2;
-	private String broker 		= "192.168.1.111";//"LocalHost";//"m2m.eclipse.org";
-//	private String broker 		= "LocalHost";
+//	private String broker 		= "10.0.0.6";//"LocalHost";//"m2m.eclipse.org";
+	private String broker 		= "LocalHost";
+//	private String broker 		= "113.137.39.193";
+//	private String broker 		= "192.168.3.1";
 	private int port 			= 1883;
 	private String clientId 	= null;
 	private String pubTopic 	= "Sample/Java/v3";
@@ -34,7 +38,8 @@ public class TopicFactory {
 	private static TopicFactory topicFactory = null;
 	private boolean isStartAll = false;
 	private String protocol = "tcp://";
-	private String url = protocol + broker + ":" + port;
+	private String url = null;
+	private String clientName = "xunwei";
 //	private boolean ssl = false;
 
 	private TopicFactory(String[] args) {
@@ -76,6 +81,7 @@ public class TopicFactory {
 //          case 'v': ssl = Boolean.valueOf(args[++i]).booleanValue();  break;
           case 'u': userName = args[++i];               break;
           case 'z': password = args[++i];               break;
+          case 'n': clientName = args[++i];             break;
 					default:
 						System.out.println("Unrecognised argument: "+args[i]);
 						printHelp();
@@ -87,6 +93,8 @@ public class TopicFactory {
 				return;
 			}
 		}
+
+		url = protocol + broker + ":" + port;
 		
 	}
 
@@ -136,11 +144,11 @@ public class TopicFactory {
                           App.topicReadData;
 		action 	= "subscribe";
 		
-		clientId = subTopic + " " + action;
+		clientId = clientName + "  " + subTopic + " " + action;
 		if(null == talkTopics) {
 			talkTopics = new MqttAsyncCallback(url,clientId,cleanSession, quietMode,userName,password) {
 				public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    super.messageArrived(topic, message);
+//                    super.messageArrived(topic, message);
 					String payload;
 					payload = new String(message.getPayload());
 
@@ -148,7 +156,6 @@ public class TopicFactory {
 					if(topic.equals(App.topicHostAck)) {
 						JsonNode errorNum = JacksonFactory.findJsonNode(payload, ErrorInfo.errNum);
 						if((errorNum != null) && (errorNum.asInt() == ErrorInfo.SUCCESS)) {
-//                            super.messageArrived(topic, message);
 						    App.setHostRegistered(true);
                         }
 						return;
@@ -159,74 +166,125 @@ public class TopicFactory {
 						JsonNode errorNum = JacksonFactory.findJsonNode(payload, ErrorInfo.errNum);
 						if(errorNum != null) {
 							DeviceRegisterThread.sendAcknowledge(errorNum.asInt());
-//							System.out.println("##################### send semaphore");
 						}
 						return;
 					}
 					
 					//get devNo to read data or parse "*" to get all device data
 					if(topic.equals(App.topicReadData)) {
-						//TODO: 1. check hostNo if it equals the current host Number.
-						JsonNode hostNum = JacksonFactory.findJsonNode(payload, "/hostNo");
-//						System.out.println(hostNum.toString());
-						//2. if *, query all devNo, and put them to thread blocking queue.
-						//otherwise get every single devNo, put them to thread blocking queue.
-						JsonNode array = JacksonFactory.findJsonNode(payload, "/devNo");
-						System.out.println(array.size());
-						int i;
-						for(i = 0; i < array.size(); i++) {
-							DataProcessThread.queueAdd(array.get(i).toString());
+						try {
+							boolean isHostNo = false;
+							//TODO: 1. check hostNo if it equals the current host Number.
+							ObjectMapper objectMapper = JacksonFactory.getObjectMapper();
+							JsonNode hostNum = JacksonFactory.findJsonNode(payload, "/hostNo");
+							boolean isArray = hostNum.isArray();
+							if(!isArray) {
+								System.out.println("JSON hostNo node is not a String array.");
+								return;
+							}
+
+							Host host = Host.getHostInstance();
+							String star = "*";
+							ArrayType arrayType = objectMapper.getTypeFactory().constructArrayType(String.class);
+							String [] hostNo = objectMapper.readValue(hostNum.toString(), arrayType);
+
+							for(int i=0; i<hostNo.length; i++) {
+								if(hostNo[i].equals(star) || hostNo[i].equals(host.getHostNo())) {
+									isHostNo = true;
+									break;
+								}
+							}
+
+							if(!isHostNo) {
+//								System.out.println("JSON don't contains current host number." + hostNo);
+								return;
+							}
+
+							//2. if *, query all devNo, and put them to thread blocking queue.
+							//otherwise get every single devNo, put them to thread blocking queue.
+							JsonNode array = JacksonFactory.findJsonNode(payload, "/devNo");
+//							System.out.println(array.size());
+							if(array.size() == 1 && array.get(0).asText().equals("*")) {	//put all exist devNo on host.
+								App.semaphore.acquire();
+								Session session = App.getSession();
+								if(!session.isOpen()) {
+									System.out.println("[topicReadData] sqlite session is closed.");
+									return;
+								}
+								Query query = session.createQuery("from Device");
+								List<Device> list = query.list();
+								if(list != null && list.size() > 0) {
+									for(Device device : list) {
+										DataProcessThread.queueAdd(device.getDevNo());
+//										System.out.println(device.getDevNo());
+									}
+								}
+							} else {		//only put specific devNo
+								int i;
+								for (i = 0; i < array.size(); i++) {
+									DataProcessThread.queueAdd(array.get(i).asText());
+								}
+							}
+						} catch (Exception e) {
+							System.out.println("[topicReadData]  :" + e.getCause());
+							System.out.println("[topicReadData]  :" +e.getMessage());
+							DataProcessThread.clearQueue();
+							App.closeSession();
+						} finally {
+							App.semaphore.release();
 						}
 					}
-					
 				}
 
 				public void run() {
-					try {
-						this.connect();
-						Thread.sleep(8000);
-					} catch (Throwable e) {
-						;
-					}
-					
-					while(!this.isConnect()) {
+					while (true) {
 						try {
-							this.disconnect();
-							Thread.sleep(5000);
 							this.connect();
+//							System.out.println("0.----- connect");
 							Thread.sleep(8000);
 						} catch (Throwable e) {
-		//					e.printStackTrace();
 							;
 						}
-					}
-					
-					try {
-						Thread.sleep(5000);
-						if(isConnect())
-							this.subscribe(this.getSubTopic(), qos);
-					} catch (Throwable e) {
-						e.printStackTrace();
-					}
-					
-					while(true) {
+
+						while (!this.isConnect()) {
+							try {
+//								this.disconnect();
+//								System.out.println("1.----- connect");
+								Thread.sleep(60000);
+								this.connect();
+								Thread.sleep(8000);
+//								System.out.println("2.----- sleep");
+//								this.disconnect();
+							} catch (Throwable e) {
+								;
+							}
+						}
+
 						try {
 							Thread.sleep(5000);
-//								System.out.println("topic "+ this.isConnect() + " connected.");
-							//Host is not registered.
-							if(!App.isHostRegistered()) {
-								Host host = Host.getHostInstance();
-								String hostData = host.doSerialize();
-								if(hostData != null)
-									this.publish(App.topicHostRegister, qos, hostData.getBytes("UTF-8"));
-							}
-							
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+							if (isConnect())
+								this.subscribe(this.getSubTopic(), qos);
 						} catch (Throwable e) {
 							e.printStackTrace();
 						}
-					}	//end of while(true)
+
+						while (true) {
+							try {
+								Thread.sleep(5000);
+								//Host is not registered.
+								if (!App.isHostRegistered() && isConnect()) {
+									Host host = Host.getHostInstance();
+									String hostData = host.doSerialize();
+									if (hostData != null)
+										this.publish(App.topicHostRegister, qos, hostData.getBytes("UTF-8"));
+								}
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							} catch (Throwable e) {
+								e.printStackTrace();
+							}
+						}    //end of while(true)
+					}
 				}
 			};
 		

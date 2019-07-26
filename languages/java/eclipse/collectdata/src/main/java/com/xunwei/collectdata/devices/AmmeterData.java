@@ -74,6 +74,10 @@ public class AmmeterData extends AbsCommonData {
 
 	public Boolean storeData() {
 		boolean result = true;
+
+		if(ammeterData.size() <= 0)
+			return false;
+
 		Session sess = App.getSession();
 		ObjectMapper mapper = JacksonFactory.getObjectMapper();
 		
@@ -82,8 +86,8 @@ public class AmmeterData extends AbsCommonData {
             	String value = me.getValue();
             	AmmeterData ammeter = mapper.readValue(value, AmmeterData.class);
                 //to persist alert.
-				Query query = sess.createQuery("select 1 from AmmeterData where timestamp = :time");
-				query.setParameter("time", ammeter.getTimestamp(), TimestampType.INSTANCE);
+				Query query = sess.createQuery("select 1 from AmmeterData where time = :time");
+				query.setParameter("time", ammeter.getTime(), TimestampType.INSTANCE);
 				
 				List list = query.getResultList();
                 if (list.isEmpty()) {
@@ -92,7 +96,7 @@ public class AmmeterData extends AbsCommonData {
 					query.setParameter("host_no", ammeter.getHostNo());
 					query.setParameter("dev_no", ammeter.getDevNo());
 					List<Integer> list1 = query.getResultList();
-					System.out.println(ammeter.getHostNo()+"         "+ammeter.getDevNo() + "     "+ list1.size());
+//					System.out.println(ammeter.getHostNo()+"         "+ammeter.getDevNo() + "     "+ list1.size());
 					if(list1.size() > 0) {
 						ammeter.setDevId(list1.get(0));
 						App.bePersistedObject(ammeter);
@@ -102,16 +106,16 @@ public class AmmeterData extends AbsCommonData {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 result = false;
-            } finally {
-                sess.close();
             }
         }
-		
+
+		sess.close();
 		return result;
 	}
 
 	public Boolean cleanupData() {
 		// TODO Auto-generated method stub
+//		ammeterData.clear();
 		return true;
 	}
 

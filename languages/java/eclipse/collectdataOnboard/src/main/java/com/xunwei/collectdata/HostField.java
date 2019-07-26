@@ -48,4 +48,30 @@ public class HostField {
     public static final int SystemFrq = 74;
     public static final int EPWR = 75;      //有功电能度数
     public static final int ERQ = 76;   //无功电能度数
+
+    //flowmeter
+    public static final int WorkTemperature = 662;
+    public static final int Pressure = 663;
+    public static final int InstantFlowRate = 664;
+    public static final int TotalFlowRate = 665;
+    //hongRun flowmeter
+    public static final int HRInstantFlowRate = 666;
+    public static final int HRTotalFlowRate = 667;
+    //KSD Tube flowmeter
+    public static final int TubeWorkTemperature = 668;
+    public static final int TubeWorkPressure = 669;
+    public static final int Tube1InstantFlowRate = 670;
+    public static final int Tube1TotalFlowRate = 671;
+    public static final int Tube2InstantFlowRate = 672;
+    public static final int Tube2TotalFlowRate = 673;
+
+    //PM25 device
+    public static final int CO2=682;
+    public static final int TVOC=683;       //挥发型气体
+    public static final int CH2O=684;       //甲醛
+    public static final int PM25=685;
+    public static final int PM25Humidity=686;
+    public static final int PM25Temperature=687;
+    public static final int PM10=688;
+
 }

@@ -7,7 +7,11 @@ public enum DeviceType {
 	WaterMeter(2),
 	NaturalGasMeter(3),
 	UPS(4),
-	SysAlert(5);
+	SysAlert(5),
+	Flowmeter(8),
+	KSDTubeFlowmeter(9),
+	HRFlowmeter(10),
+	PM25device(11);
 	
 	private final int val;
 	

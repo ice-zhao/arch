@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.xunwei.collectdata.devices">
+    <class name="HRLC80Flowmeter" table="t_dev_hrflowmeter">
+    	<id name="id" column="ID">
+    		<generator class="increment"/>
+    	</id>
+        <property name="instantFlowRate"  column = "instantFlowRate" type="float"></property>
+        <property name="totalFlowRate"  column = "totalFlowRate" type="float"></property>
+        <!--<property name="ParkId"  column = "ParkId" type="int"></property>-->
+        <!--<property name="BuildingId"  column = "BuildingId" type="int"></property>-->
+        <property name="devId"  column = "DevId" type="int"></property>
+        <property name="time"  column = "Time" type="java.util.Date"></property>
+        <property name="hostNo"  column = "HostNo" type="string"></property>
+        <property name="devNo"  column = "DevNo" type="string"></property>
+    </class>
+</hibernate-mapping>

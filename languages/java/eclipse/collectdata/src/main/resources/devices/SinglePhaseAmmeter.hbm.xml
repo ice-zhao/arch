@@ -19,7 +19,7 @@
         <!--<property name="ParkId"  column = "ParkId" type="int"></property>-->
         <!--<property name="BuildingId"  column = "BuildingId" type="int"></property>-->
         <property name="devId"  column = "DevId" type="int"></property>
-        <property name="timestamp"  column = "Time" type="java.util.Date"></property>
+        <property name="time"  column = "Time" type="java.util.Date"></property>
         <property name="hostNo"  column = "HostNo" type="string"></property>
         <property name="devNo"  column = "DevNo" type="string"></property>
     </class>

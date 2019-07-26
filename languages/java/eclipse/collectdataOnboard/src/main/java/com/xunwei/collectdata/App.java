@@ -1,33 +1,24 @@
 package com.xunwei.collectdata;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xunwei.collectdata.alert.AlertProcessThread;
 import com.xunwei.collectdata.devices.DeviceRegisterThread;
-import com.xunwei.collectdata.utils.JacksonFactory;
-import com.xunwei.collectdata.utils.TestData;
-import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
-
-//import com.xunwei.collectdata.devices.Device;
-//import com.xunwei.collectdata.devices.News;
-//import com.xunwei.services.MqttAsyncCallback;
-
-//import java.util.List;
-
-//import org.eclipse.paho.client.mqttv3.MqttException;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-//import org.hibernate.Transaction;
-import org.apache.log4j.*;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 
-import java.util.HashMap;
+import java.util.concurrent.Semaphore;
 
 public class App 
 {
 	private static final SessionFactory concreteSessionFactory;
 	private static final SessionFactory dataSessionFactory;
 	private static boolean isHostRegistered = false;
+	private static Session cfgsession =  null;
+	private static Session dataSession =  null;
 	
 	public static final String topicHostRegister = "/control/register/host";
 	public static final String topicHostAck = "/control/register/host/ack";
@@ -35,13 +26,15 @@ public class App
 	public static final String topicDevAck = "/control/register/host/device/ack";
 	public static final String topicReadData = "/control/device/data/read";
 	public static final String topicDevReplyData = "/devices/reply/data";
-	
+	public static final String topicSendAlert = "/devices/alert";
+
+	public static Semaphore semaphore = new Semaphore(1, false);
 	static {
 		BasicConfigurator.configure();
-//		Logger.getLogger("org.hibernate").setLevel(Level.ERROR);
-//		Logger.getLogger("org.jboss").setLevel(Level.ERROR);
-//		Logger.getLogger("com.mchange").setLevel(Level.ERROR);
-//		Logger.getLogger("org.redisson").setLevel(Level.ERROR);
+		Logger.getLogger("org.hibernate").setLevel(Level.ERROR);
+		Logger.getLogger("org.jboss").setLevel(Level.ERROR);
+		Logger.getLogger("com.mchange").setLevel(Level.ERROR);
+		Logger.getLogger("org.redisson").setLevel(Level.ERROR);
 
 		try {
 			concreteSessionFactory = new Configuration()
@@ -56,19 +49,25 @@ public class App
 	}
 
 	public static Session getSession() throws HibernateException {
-		return concreteSessionFactory.openSession();
+		if(cfgsession == null)
+			cfgsession = concreteSessionFactory.openSession();
+		return cfgsession;
 	}
 
 	public static Session getDataSession() throws HibernateException {
-		return dataSessionFactory.openSession();
+		if(dataSession == null)
+			dataSession = dataSessionFactory.openSession();
+		return dataSession;
 	}
 	
-    static void closeSession(Session session){
-        if(session != null){
+    public static void closeSession(){
+        if(cfgsession != null){
         	try {
-				session.close();
+				cfgsession.close();
+				cfgsession = null;
 			} catch (Exception e) {
         		e.printStackTrace();
+				cfgsession = null;
 			}
 
         }
@@ -99,8 +98,31 @@ public class App
 		t.start();
 
 		//start alert process thread
-		/*Thread alert = new AlertProcessThread();
-		alert.start();*/
+		Thread alert = new AlertProcessThread();
+		alert.start();
+
+		while (true) {
+			if(!deviceRegisterThread.isAlive()) {
+				deviceRegisterThread = new DeviceRegisterThread();
+				deviceRegisterThread.start();
+			}
+
+			if(!t.isAlive()) {
+				t = new DataProcessThread();
+				t.start();
+			}
+
+			if(!alert.isAlive()) {
+				alert = new AlertProcessThread();
+				alert.start();
+			}
+
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 
 		//produce Testing data
 /*		TestData testData = new TestData();
@@ -121,9 +143,9 @@ public class App
 		} catch (Exception ex)
 		{
 			throw ex;
-		} finally {
+		} /*finally {
 			closeSession(sess);
-		}
+		}*/
 	}
 
 	public static boolean isHostRegistered() {
@@ -210,3 +232,10 @@ sess.save(news1);*/
 //				}
 //
 //				System.out.println(json1);
+
+
+/*
+	Session session = App.getSession();
+	Query query = session.createQuery("from FieldSignal");
+	List<FieldSignal> list = query.list();
+		System.out.println(list.size());*/

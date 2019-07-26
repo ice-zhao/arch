@@ -14,8 +14,8 @@
       <property name = "hibernate.connection.driver_class">org.sqlite.JDBC</property>
       <property name="hibernate.jdbc.time_zone">UTC</property>
       <!-- Assume xunwei is the database name -->
-      <property name = "hibernate.connection.url">jdbc:sqlite:F:\\Projects\\arch\\languages\\java\\eclipse\\collectdataOnboard\\dhCfg.db</property>
-      <!--<property name = "hibernate.connection.url">jdbc:sqlite:/home/gxy/core/DataBase/dhCfg.db</property>-->
+      <!--<property name = "hibernate.connection.url">jdbc:sqlite:F:\\Projects\\xunwei\\temp\\board sqlite\\dhCfg.db</property>-->
+      <property name = "hibernate.connection.url">jdbc:sqlite:/home/gxy/core/DataBase/dhCfg.db</property>
       <!--<property name = "hibernate.connection.username"></property>-->
       <!--<property name = "hibernate.connection.password"></property>-->
       <!-- database connection pool -->
@@ -30,7 +30,7 @@
       
       <!-- according to requirement, automate create Table. -->
       <property name = "hbm2ddl.auto">update</property>
-      <property name = "show_sql">true</property>
+      <!--<property name = "show_sql">true</property>-->
       <property name = "hibernate.format_sql">true</property>
 
 	  <!-- list all persistent class   -->
@@ -38,6 +38,7 @@
 
       <!-- List of XML mapping files -->
       <mapping resource = "devices/Device.hbm.xml"/>
+      <mapping resource = "devices/FieldSignal.hbm.xml"/>
       <!--<mapping resource = "devices/Host.hbm.xml"/>-->
       <!--<mapping resource = "devices/SysAlert.hbm.xml"/>-->
       <!--<mapping resource = "devices/WaterData.hbm.xml"/>-->

@@ -13,7 +13,9 @@ import com.xunwei.collectdata.ICommon;
 import com.xunwei.collectdata.TopicFactory;
 import com.xunwei.collectdata.utils.ErrorInfo;
 import com.xunwei.services.MqttAsyncCallback;
+import com.xunwei.services.daos.DeviceService;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class DeviceRegisterThread extends Thread implements ICommon {
 	//to store deviceNo and device instance.
@@ -21,32 +23,37 @@ public class DeviceRegisterThread extends Thread implements ICommon {
 	private static Semaphore acknowledge = new Semaphore(0, true);
 	private static int errStatus = ErrorInfo.FAIL;
 	private static int delayCleanData = 0;
-	
+
+	MqttAsyncCallback mqttClient = TopicFactory.getInstanceOfTalkTopics();
+
 	public void run() {
 		while(true) {
-			// 1. readData
-			//2. publish a device info
-			if(App.isHostRegistered() && readData()) {
-				storeData();
-			}
-
 			try {
-				Thread.sleep(10000);
+				Thread.sleep(30000);
+				if(!App.isHostRegistered() || !mqttClient.isConnect())
+					continue;
+
 				cleanupData();
 //				System.out.println("############ in device register thread.");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+
+			// 1. readData
+			//2. publish a device info
+			if(App.isHostRegistered() && readData()) {
+				storeData();
+			}
 		}
 	}
 
 	public Boolean readData() {
 		//1. check Map if has device, if not exist, add it to map
-		Session session = App.getSession();
-		@SuppressWarnings("unchecked")
-		List<Device> list = (List<Device>)session.createQuery("from Device").list();
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  "+ list.size());
+		List<Device> list = null;
+		DeviceService deviceService = DeviceService.getInstance();
+		list = deviceService.getAllDevices();
+
 		for(Device item : list) {
 			if(!devices.containsKey(item.getDevNo()))
 				devices.put(item.getDevNo(), item);
@@ -65,8 +72,7 @@ public class DeviceRegisterThread extends Thread implements ICommon {
 		for(Entry<String, Device> entry : devices.entrySet()) {
 		// TODO 1. only send message for unregistered device.
 			Device dev = entry.getValue();
-//			System.out.println("---------------"+dev.getDevNo());
-			if(dev.isRegistered())
+			if(dev.isRegistered() || dev.isViolate())
 				continue;
 			
 			count = 0;
@@ -75,7 +81,6 @@ public class DeviceRegisterThread extends Thread implements ICommon {
 				try {
 					mqttTalkTopics.publish(App.topicDevRegister, 2, dev.doSerialize().getBytes("UTF-8"));
 					waitAcknowledge();
-//					System.out.println("---------------get semaphore");
 				} catch (Throwable e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -87,6 +92,9 @@ public class DeviceRegisterThread extends Thread implements ICommon {
 				if(++count >= 3)
 					break;
 			}
+
+			if(count >= 3)
+				dev.setViolate(true);
 		}
 		
 		return true;
@@ -94,10 +102,10 @@ public class DeviceRegisterThread extends Thread implements ICommon {
 
 	public Boolean cleanupData() {
 		//to check if device has been deleted.
-		if(delayCleanData > 6 && !devices.isEmpty())
-			devices.clear();
-
-		delayCleanData = ++delayCleanData % 6;
+//		if(delayCleanData > 6 && !devices.isEmpty())
+//			devices.clear();
+//
+//		delayCleanData = ++delayCleanData % 6;
 		return true;
 	}
 

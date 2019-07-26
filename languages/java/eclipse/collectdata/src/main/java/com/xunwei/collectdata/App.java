@@ -17,8 +17,11 @@ import org.hibernate.SessionFactory;
 //import org.hibernate.Transaction;
 import org.apache.log4j.*;
 
+import java.util.concurrent.Semaphore;
+
 public class App 
 {
+	public static Semaphore semaphore = new Semaphore(1, false);
 	private static final SessionFactory concreteSessionFactory;
 	static {
 		BasicConfigurator.configure();
@@ -40,7 +43,7 @@ public class App
 		return concreteSessionFactory.openSession();
 	}
 	
-    static void closeSession(Session session){
+    public static void closeSession(Session session){
         if(session != null){
             session.close();
         }

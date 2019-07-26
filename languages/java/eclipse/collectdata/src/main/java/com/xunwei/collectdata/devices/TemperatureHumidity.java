@@ -26,19 +26,31 @@ public class TemperatureHumidity extends AbsCommonData {
 
     public Boolean readData() {
         RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
-        RKeys keys = redissonClient.getKeys();
-        Iterable<String> allKeys = keys.getKeysByPattern("*:*:1:100");
 
-        for(String item : allKeys) {
-            RList<String> rList = redissonClient.getList(item);
-            tempHumidity.put(item, rList.get(rList.size()-1));
+        try {
+            App.semaphore.acquire();
+            RKeys keys = redissonClient.getKeys();
+            Iterable<String> allKeys = keys.getKeysByPattern("*:*:1:100");
+
+            for(String item : allKeys) {
+                RList<String> rList = redissonClient.getList(item);
+                tempHumidity.put(item, rList.get(rList.size()-1));
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            App.semaphore.release();
         }
+
 
         return true;
     }
 
     public Boolean storeData() {
         boolean result = true;
+        if(tempHumidity.size() <= 0)
+            return false;
+
         Session sess = App.getSession();
         ObjectMapper mapper = JacksonFactory.getObjectMapper();
 
@@ -47,18 +59,18 @@ public class TemperatureHumidity extends AbsCommonData {
                 String value = me.getValue();
                 TemperatureHumidity temperatureHumidity = mapper.readValue(value, TemperatureHumidity.class);
                 //to persist alert.
-                Query query = sess.createQuery("select 1 from TemperatureHumidity where timestamp = :time");
-                query.setParameter("time", temperatureHumidity.getTimestamp(), TimestampType.INSTANCE);
-                System.out.println("------------------------" + temperatureHumidity.getTimestamp());
+                Query query = sess.createQuery("select 1 from TemperatureHumidity where time = :time");
+                query.setParameter("time", temperatureHumidity.getTime(), TimestampType.INSTANCE);
+//                System.out.println("Humidity and temperature :  " + temperatureHumidity.getTime());
 
                 List list = query.getResultList();
                 if (list.isEmpty()) {
                     //get cloud side's devId
-                    query = sess.createSQLQuery("select ID from t_sys_device where HostNo=:host_no and DevNo=:dev_no");
+                    query = sess.createQuery("select id from Device where hostNo=:host_no and devNo=:dev_no");
                     query.setParameter("host_no", temperatureHumidity.getHostNo());
                     query.setParameter("dev_no", temperatureHumidity.getDevNo());
                     List<Integer> list1 = query.getResultList();
-                    System.out.println(temperatureHumidity.getHostNo()+"         "+temperatureHumidity.getDevNo() + "     "+ list1.size());
+//                    System.out.println(temperatureHumidity.getHostNo()+"         "+temperatureHumidity.getDevNo() + "     "+ list1.size());
                     if(list1.size() > 0) {
                         temperatureHumidity.setDevId(list1.get(0));
                         App.bePersistedObject(temperatureHumidity);
@@ -68,12 +80,17 @@ public class TemperatureHumidity extends AbsCommonData {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 result = false;
-            } finally {
-                sess.close();
             }
         }
 
+        sess.close();
         return result;
+    }
+
+    @Override
+    public Boolean cleanupData() {
+//        tempHumidity.clear();
+        return true;
     }
 
     public float getTemperature() {

@@ -12,13 +12,14 @@
    <session-factory>
       <property name = "hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
       <property name = "hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-      <property name="hibernate.jdbc.time_zone">UTC</property>
+      <!--<property name="hibernate.jdbc.time_zone">CST</property>-->
       <!-- Assume xunwei is the database name -->
       <!--<property name = "hibernate.connection.url">jdbc:mysql://localhost:3306/xunwei?serverTimezone=UTC</property>-->
       <!--<property name = "hibernate.connection.username">root</property>-->
       <!--<property name = "hibernate.connection.password">root</property>-->
-      <property name = "hibernate.connection.url">jdbc:mysql://192.168.0.168:30011/db_cism?serverTimezone=UTC</property>
-      <property name = "hibernate.connection.username">gxy</property>
+      <!--<property name = "hibernate.connection.url">jdbc:mysql://192.168.0.168:30011/db_cism?serverTimezone=CST</property>-->
+      <property name = "hibernate.connection.url">jdbc:mysql://localhost:30011/db_cism?serverTimezone=CST</property>
+      <property name = "hibernate.connection.username">xw</property>
       <property name = "hibernate.connection.password">Xunwei#2016</property>
       <!-- database connection pool -->
       <property name = "hibernate.c3p0.max_size">20</property>
@@ -32,7 +33,7 @@
       
       <!-- according to requirement, automate create Table. -->
       <property name = "hbm2ddl.auto">update</property>
-      <property name = "show_sql">true</property>
+      <!--<property name = "show_sql">true</property>-->
       <property name = "hibernate.format_sql">true</property>
 
 	  <!-- list all persistent class   -->
@@ -47,6 +48,10 @@
       <mapping resource = "devices/AmmeterData.hbm.xml"/>
       <mapping resource="devices/SinglePhaseAmmeter.hbm.xml"/>
       <mapping resource="devices/TemperatureHumidity.hbm.xml"/>
+      <mapping resource="devices/Flowmeter.hbm.xml"/>
+      <mapping resource="devices/KSDTubeFlowmeter.hbm.xml"/>
+      <mapping resource="devices/HRLC80Flowmeter.hbm.xml"/>
+      <mapping resource="devices/PM25EnvDevice.hbm.xml"/>
 
    </session-factory>
 <!--

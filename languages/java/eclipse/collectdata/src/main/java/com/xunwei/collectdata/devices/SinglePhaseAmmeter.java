@@ -44,6 +44,9 @@ public class SinglePhaseAmmeter extends AbsCommonData {
 
     public Boolean storeData() {
         boolean result = true;
+        if(singleAmmeter.size() <= 0)
+            return false;
+
         Session sess = App.getSession();
         ObjectMapper mapper = JacksonFactory.getObjectMapper();
 
@@ -52,17 +55,17 @@ public class SinglePhaseAmmeter extends AbsCommonData {
                 String value = me.getValue();
                 SinglePhaseAmmeter ammeter = mapper.readValue(value, SinglePhaseAmmeter.class);
                 //to persist alert.
-                Query query = sess.createQuery("select 1 from SinglePhaseAmmeter where timestamp = :time");
-                query.setParameter("time", ammeter.getTimestamp(), TimestampType.INSTANCE);
+                Query query = sess.createQuery("select 1 from SinglePhaseAmmeter where time = :time");
+                query.setParameter("time", ammeter.getTime(), TimestampType.INSTANCE);
 
                 List list = query.getResultList();
                 if (list.isEmpty()) {
                     //get cloud side's devId
-                    query = sess.createSQLQuery("select ID from t_sys_device where HostNo=:host_no and DevNo=:dev_no");
-                    query.setParameter("host_no", ammeter.getHostNo());
-                    query.setParameter("dev_no", ammeter.getDevNo());
-                    List<Integer> list1 = query.getResultList();
-                    System.out.println(ammeter.getHostNo()+"         "+ammeter.getDevNo() + "     "+ list1.size());
+                    Query query1 = sess.createSQLQuery("select ID from t_sys_device where HostNo=:host_no and DevNo=:dev_no");
+                    query1.setParameter("host_no", ammeter.getHostNo());
+                    query1.setParameter("dev_no", ammeter.getDevNo());
+                    List<Integer> list1 = query1.getResultList();
+//                    System.out.println(ammeter.getHostNo()+"         "+ammeter.getDevNo() + "     "+ list1.size());
                     if(list1.size() > 0) {
                         ammeter.setDevId(list1.get(0));
                         App.bePersistedObject(ammeter);
@@ -72,12 +75,18 @@ public class SinglePhaseAmmeter extends AbsCommonData {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 result = false;
-            } finally {
-                sess.close();
             }
         }
 
+        sess.close();
+
         return result;
+    }
+
+    @Override
+    public Boolean cleanupData() {
+//        singleAmmeter.clear();
+        return true;
     }
 
     public float getUa() {

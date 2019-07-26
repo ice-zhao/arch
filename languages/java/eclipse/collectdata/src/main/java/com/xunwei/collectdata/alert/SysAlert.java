@@ -2,7 +2,9 @@ package com.xunwei.collectdata.alert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.org.apache.xerces.internal.impl.xs.SchemaSymbols;
+import com.xunwei.collectdata.AbsCommonData;
 import com.xunwei.collectdata.App;
+import com.xunwei.collectdata.devices.Device;
 import com.xunwei.collectdata.utils.RedissonClientFactory;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -18,27 +20,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-public class SysAlert extends AbsAlert {
-	private int id;
-	private int DevId;
+public class SysAlert extends AbsCommonData {
 	private String alarmName;
 	private String AlarmSite;
 	private Date endTime;
 	private int alertLevel;
 	private HashMap<String, String> alertData = new HashMap<String, String>();
 
+	private Integer logCounter = 0;
+
 	public Boolean readData() {
 		RedissonClient redissonClient = RedissonClientFactory.getRedissonClient();
-		RKeys keys = redissonClient.getKeys();
-		Iterable<String> allKeys = keys.getKeysByPattern("*:*:*:110");
 
-		for(String item : allKeys) {
-//			RBucket<String> rbucket = redissonClient.getBucket(item);
-//			alertData.put(item, rbucket.get());
-			RList<String> rList = redissonClient.getList(item);
-			alertData.put(item, rList.get(0));
-		}
-		
+        try {
+            App.semaphore.acquire();
+            RKeys keys = redissonClient.getKeys();
+            Iterable<String> allKeys = keys.getKeysByPattern("*:*:*:110");
+
+            for(String item : allKeys) {
+                RList<String> rList = redissonClient.getList(item);
+                alertData.put(item, rList.get(rList.size()-1));
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            App.semaphore.release();
+        }
+
 		return true;
 	}
 
@@ -57,23 +65,51 @@ public class SysAlert extends AbsAlert {
         for (Entry<String, String> me : alertData.entrySet()) {
             try {
             	String value = me.getValue();
+            	if(value == null) {
+            		result = false;
+					break;
+				}
             	SysAlert sysAlert = mapper.readValue(value, SysAlert.class);
-                //to persist alert.
-				Query query = sess.createQuery("select 1 from SysAlert where StartTime = :time");
-				query.setParameter("time", sysAlert.getStartTime(), TimestampType.INSTANCE);
-				List list = query.getResultList();
+            	sysAlert.setEndTime(sysAlert.getStartTime());
+            	//get devId
+				Query query1 = sess.createQuery("from Device where hostNo = :host_no and devNo = :dev_no");
+				query1.setParameter("host_no", sysAlert.getHostNo());
+				query1.setParameter("dev_no", sysAlert.getDevNo());
+				List<Device> list1 = query1.getResultList();
 
-                if (list.isEmpty()) {
-                    App.bePersistedObject(sysAlert);
-                }
+				if(list1.size() > 0) {
+					Integer dev_id = list1.get(0).getId();
+					Integer park_Id=list1.get(0).getParkId();
+					if(park_Id == null) {
+						if(logCounter > 300) {
+							System.out.println("device id " + dev_id + " contains NULL park ID value.");
+							logCounter = 0;
+						}
+						else
+							logCounter++;
+
+						continue;
+					}
+					sysAlert.setDevId(dev_id);
+					sysAlert.setParkId(park_Id);
+					//to persist alert.
+					Query query = sess.createQuery("select 1 from SysAlert where StartTime = :time and devId = :dev_id");
+					query.setParameter("time", sysAlert.getStartTime(), TimestampType.INSTANCE);
+					query.setParameter("dev_id", dev_id);
+					List list = query.getResultList();
+
+					if (list.isEmpty()) {
+						App.bePersistedObject(sysAlert);
+					}
+				}
             } catch (Throwable e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 result = false;
-            } finally {
-                sess.close();
             }
         }
+
+        App.closeSession(sess);
 		
 		return result;
 	}
@@ -99,14 +135,6 @@ public class SysAlert extends AbsAlert {
 		this.alertLevel = alertLevel;
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	public String getAlarmName() {
 		return alarmName;
 	}
@@ -121,13 +149,5 @@ public class SysAlert extends AbsAlert {
 
 	public void setAlarmSite(String alarmSite) {
 		AlarmSite = alarmSite;
-	}
-
-	public int getDevId() {
-		return DevId;
-	}
-
-	public void setDevId(int devId) {
-		DevId = devId;
 	}
 }

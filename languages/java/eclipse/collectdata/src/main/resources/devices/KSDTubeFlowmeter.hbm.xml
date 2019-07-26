@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.xunwei.collectdata.devices">
+    <class name="KSDTubeFlowmeter" table="t_dev_Tubeflowmeter">
+    	<id name="id" column="ID">
+    		<generator class="increment"/>
+    	</id>
+        <property name="temperature"  column = "temperature" type="float"></property>
+        <property name="pressure"  column = "pressure" type="float"></property>
+        <property name="tube1InstantFlowRate"  column = "tube1InstantFlowRate" type="float"></property>
+        <property name="tube1TotalFlowRate"  column = "tube1TotalFlowRate" type="float"></property>
+        <property name="tube2InstantFlowRate"  column = "tube2InstantFlowRate" type="float"></property>
+        <property name="tube2TotalFlowRate"  column = "tube2TotalFlowRate" type="float"></property>
+        <!--<property name="ParkId"  column = "ParkId" type="int"></property>-->
+        <!--<property name="BuildingId"  column = "BuildingId" type="int"></property>-->
+        <property name="devId"  column = "DevId" type="int"></property>
+        <property name="time"  column = "Time" type="java.util.Date"></property>
+        <property name="hostNo"  column = "HostNo" type="string"></property>
+        <property name="devNo"  column = "DevNo" type="string"></property>
+    </class>
+</hibernate-mapping>
